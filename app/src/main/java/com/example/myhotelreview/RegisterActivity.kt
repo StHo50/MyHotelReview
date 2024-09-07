@@ -10,61 +10,75 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import androidx.appcompat.app.AlertDialog
+
 
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
-    private lateinit var database: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
         auth = FirebaseAuth.getInstance()
-        database = FirebaseDatabase.getInstance().getReference("Users")
 
         val etEmail = findViewById<EditText>(R.id.etEmail)
         val etPassword = findViewById<EditText>(R.id.etPassword)
-        val etConfirmPassword = findViewById<EditText>(R.id.etConfirmPassword)
         val btnRegister = findViewById<Button>(R.id.btnRegister)
         val tvLogin = findViewById<TextView>(R.id.tvLogin)
 
         btnRegister.setOnClickListener {
             val email = etEmail.text.toString()
             val password = etPassword.text.toString()
-            val confirmPassword = etConfirmPassword.text.toString()
 
-            if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-            } else if (password != confirmPassword) {
-                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
+            } else if (!isValidPassword(password)) {
+                showPasswordGuidelinesDialog()
             } else {
                 auth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this) { task ->
                         if (task.isSuccessful) {
-                            val userId = auth.currentUser?.uid
-                            val user = User(email)
-
-                            if (userId != null) {
-                                database.child(userId).setValue(user)
-                                    .addOnCompleteListener {
-                                        Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show()
-                                        val intent = Intent(this, LoginActivity::class.java)
-                                        startActivity(intent)
-                                    }
-                                    .addOnFailureListener {
-                                        Toast.makeText(this, "Failed to save user data", Toast.LENGTH_SHORT).show()
-                                    }
-                            }
+                            // Registration successful
+                            Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this, MainActivity::class.java)
+                            startActivity(intent)
                         } else {
+                            // Registration failed
                             Toast.makeText(this, "Registration Failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                         }
                     }
             }
         }
+
         tvLogin.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         }
     }
+
+    private fun isValidPassword(password: String): Boolean {
+        val passwordPattern = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$")
+        return passwordPattern.matches(password)
+    }
+
+    private fun showPasswordGuidelinesDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Password Guidelines")
+        builder.setMessage(
+            "Your password must meet the following criteria:\n\n" +
+                    "- At least 6 characters long\n" +
+                    "- Includes at least one uppercase letter\n" +
+                    "- Includes at least one lowercase letter\n" +
+                    "- Includes at least one number\n" +
+                    "- Includes at least one special character (e.g., @, $, !, %, *, ?, &)"
+        )
+        builder.setPositiveButton("OK") { dialog, _ ->
+            dialog.dismiss()
+        }
+        val dialog = builder.create()
+        dialog.show()
+    }
 }
+
