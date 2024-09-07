@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "716531600262",
+    "project_id": "myhotelreview-15d16",
+    "storage_bucket": "myhotelreview-15d16.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:716531600262:android:f62a729ae7f36804d27a07",
+        "android_client_info": {
+          "package_name": "com.example.myhotelreview"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0W51ehW24rn0ltPoWVIS416xpAxGEsTk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
