@@ -50,5 +50,8 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation ("com.google.firebase:firebase-auth:22.1.2")
     implementation ("com.google.firebase:firebase-database:20.3.0")
-
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+    implementation ("androidx.activity:activity-ktx:1.7.2")
+    implementation ("androidx.fragment:fragment-ktx:1.6.1")
 }
