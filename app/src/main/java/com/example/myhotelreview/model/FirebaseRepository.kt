@@ -9,13 +9,13 @@ class FirebaseRepository {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("Users")
 
-    fun registerUser(email: String, password: String, onComplete: (Boolean, String?) -> Unit) {
+    fun registerUser(email: String, password: String, name: String, onComplete: (Boolean, String?) -> Unit) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val userId = auth.currentUser?.uid
                     if (userId != null) {
-                        val user = mapOf("email" to email)
+                        val user = mapOf("email" to email, "name" to name)
                         database.child(userId).setValue(user).addOnCompleteListener { dbTask ->
                             if (dbTask.isSuccessful) {
                                 onComplete(true, null)
@@ -31,6 +31,7 @@ class FirebaseRepository {
                 }
             }
     }
+
     fun loginUser(email: String, password: String, onComplete: (Boolean, String?) -> Unit) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
@@ -41,22 +42,24 @@ class FirebaseRepository {
                 }
             }
     }
-    fun fetchUserData(onComplete: (String?) -> Unit) {
+
+    fun fetchUserData(onComplete: (String?, String?) -> Unit) {
         val user = auth.currentUser
         if (user != null) {
             val userId = user.uid
             database.child(userId).get().addOnSuccessListener {
                 if (it.exists()) {
                     val email = it.child("email").value.toString()
-                    onComplete(email)
+                    val name = it.child("name").value.toString()
+                    onComplete(name, email)
                 } else {
-                    onComplete(null)
+                    onComplete(null, null)
                 }
             }.addOnFailureListener {
-                onComplete(null)
+                onComplete(null, null)
             }
         } else {
-            onComplete(null)
+            onComplete(null, null)
         }
     }
 }
