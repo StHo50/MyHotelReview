@@ -13,15 +13,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginStart="161dp"
-        android:layout_marginTop="342dp"
-        android:layout_marginEnd="161dp"
-        android:layout_marginBottom="150dp"
+        android:layout_marginStart="169dp"
+        android:layout_marginTop="600dp"
+        android:layout_marginEnd="153dp"
+        android:layout_marginBottom="14dp"
         android:paddingTop="20dp"
         android:text="Welcome!"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/btnLogout"
+        app:layout_constraintBottom_toTopOf="@+id/btnHotels"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -30,15 +31,27 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginStart="140dp"
-        android:layout_marginTop="140dp"
-        android:layout_marginEnd="140dp"
-        android:layout_marginBottom="140dp"
         android:text="Logout"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnHotels"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btnHotels"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="24dp"
+        android:text="Hotels"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvWelcome" />
 
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        tools:layout_editor_absoluteY="16dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

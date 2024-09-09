@@ -22,6 +22,7 @@ class MainActivity : AppCompatActivity() {
 
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
         val btnLogout = findViewById<Button>(R.id.btnLogout)
+        val btnHotels = findViewById<Button>(R.id.btnHotels)
 
         mainViewModel.welcomeMessage.observe(this, Observer { message ->
             tvWelcome.text = message
@@ -32,5 +33,14 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
+
+        btnHotels.setOnClickListener {
+            val fragment = HotelsFragment()
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit()
+        }
+
     }
 }
