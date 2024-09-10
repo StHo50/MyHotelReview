@@ -24,4 +24,10 @@ class HotelRepository(context: Context) {
             hotelDao.getAllHotels()
         }
     }
+
+    suspend fun deleteAllHotels() {
+        withContext(Dispatchers.IO) {
+            hotelDao.deleteAllHotels()
+        }
+    }
 }

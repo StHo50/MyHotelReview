@@ -11,4 +11,7 @@ interface HotelDao {
 
     @Query("SELECT * FROM hotels")
     suspend fun getAllHotels(): List<Hotel>
+
+    @Query("DELETE FROM hotels")
+    suspend fun deleteAllHotels()
 }

@@ -4,16 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.myhotelreview.R
 import com.example.myhotelreview.viewmodel.HotelViewModel
 
 class HotelsFragment : Fragment() {
 
     private val hotelViewModel: HotelViewModel by viewModels()
+    private lateinit var hotelAdapter: HotelAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,16 +27,21 @@ class HotelsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val tvHotels = view.findViewById<TextView>(R.id.tvHotels)
+        val rvHotels = view.findViewById<RecyclerView>(R.id.rvHotels)
+        rvHotels.layoutManager = LinearLayoutManager(context)
 
-        hotelViewModel.insertDummyHotels()
+        // The function below inserts the dummy hotels data, we need to activate it only once in order to not get duplicated data every run, that's why it's a comment.
+        //hotelViewModel.insertDummyHotels()
 
         hotelViewModel.fetchHotels()
 
         hotelViewModel.hotels.observe(viewLifecycleOwner, Observer { hotels ->
-            tvHotels.text = hotels.joinToString("\n") { "${it.name}, ${it.location},${it.stars}, Rating: ${it.rating}" }
+            hotelAdapter = HotelAdapter(hotels)
+            rvHotels.adapter = hotelAdapter
         })
-
-
     }
+
+
+
+
 }

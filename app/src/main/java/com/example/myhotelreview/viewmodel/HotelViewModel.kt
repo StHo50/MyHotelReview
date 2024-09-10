@@ -24,7 +24,11 @@ class HotelViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun insertDummyHotels() {
+
         viewModelScope.launch {
+
+            //repository.deleteAllHotels()
+
             val dummyHotels = listOf(
                 Hotel(name = "Hotel A", description = "A cozy place to stay.", location = "City A", image = "https://cf.bstatic.com/xdata/images/hotel/max1024x768/516222741.jpg?k=e35a1f06b6598e0b99fd0bda1af04c424ca107906c2fd8c196030a0400d88093&o=&hp=1", stars = 5, rating = 9.0f, freeCancellation = false, prePayment = true, breakfast = true),
                 Hotel(name = "Hotel B", description = "Luxurious and spacious.", location = "City B", image = "https://cf.bstatic.com/xdata/images/hotel/square240/528908425.webp?k=40444b0d9750d99141642efa164fb48e789434e807543b00866b7e29dd5f9048&o=", stars = 4, rating = 8.5f, freeCancellation = true, prePayment = false, breakfast = true),
@@ -59,6 +63,8 @@ class HotelViewModel(application: Application) : AndroidViewModel(application) {
             )
 
             dummyHotels.forEach { repository.insertHotel(it) }
+            fetchHotels()
         }
     }
+
 }
