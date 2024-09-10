@@ -67,4 +67,8 @@ class HotelViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun getHotelById(id: Int): LiveData<Hotel> {
+        return repository.getHotelById(id)
+    }
+
 }

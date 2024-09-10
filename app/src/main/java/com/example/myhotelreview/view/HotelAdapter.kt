@@ -7,8 +7,9 @@ import com.example.myhotelreview.databinding.ItemHotelBinding
 import com.example.myhotelreview.model.Hotel
 import com.squareup.picasso.Picasso
 
-class HotelAdapter(private val hotels: List<Hotel>) :
-    RecyclerView.Adapter<HotelAdapter.HotelViewHolder>() {
+class HotelAdapter(
+    private val hotels: List<Hotel>,
+    private val onHotelClick: (Hotel) -> Unit) : RecyclerView.Adapter<HotelAdapter.HotelViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HotelViewHolder {
         val binding = ItemHotelBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -30,6 +31,10 @@ class HotelAdapter(private val hotels: List<Hotel>) :
             binding.tvHotelRating.text = hotel.rating.toString()
             binding.tvHotelStars.text = hotel.stars.toString()
             Picasso.get().load(hotel.image).into(binding.ivHotelImage)
+
+            binding.root.setOnClickListener {
+                onHotelClick(hotel)
+            }
         }
     }
 }

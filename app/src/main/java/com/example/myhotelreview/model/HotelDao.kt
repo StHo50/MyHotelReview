@@ -1,5 +1,6 @@
 package com.example.myhotelreview.model
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -14,4 +15,7 @@ interface HotelDao {
 
     @Query("DELETE FROM hotels")
     suspend fun deleteAllHotels()
+
+    @Query("SELECT * FROM hotels WHERE id = :id")
+    fun getHotelById(id: Int): LiveData<Hotel>
 }

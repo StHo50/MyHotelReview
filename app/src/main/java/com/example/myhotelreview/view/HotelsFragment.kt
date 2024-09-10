@@ -36,12 +36,15 @@ class HotelsFragment : Fragment() {
         hotelViewModel.fetchHotels()
 
         hotelViewModel.hotels.observe(viewLifecycleOwner, Observer { hotels ->
-            hotelAdapter = HotelAdapter(hotels)
+            hotelAdapter = HotelAdapter(hotels) { hotel ->
+                // Navigate to the detail fragment, passing the hotel ID
+                val fragment = HotelDetailFragment.newInstance(hotel.id)
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
             rvHotels.adapter = hotelAdapter
         })
     }
-
-
-
-
 }

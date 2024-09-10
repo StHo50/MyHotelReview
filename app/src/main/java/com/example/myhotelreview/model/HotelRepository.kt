@@ -1,6 +1,7 @@
 package com.example.myhotelreview.model
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -24,10 +25,11 @@ class HotelRepository(context: Context) {
             hotelDao.getAllHotels()
         }
     }
-
     suspend fun deleteAllHotels() {
         withContext(Dispatchers.IO) {
             hotelDao.deleteAllHotels()
         }
     }
+
+    fun getHotelById(id: Int): LiveData<Hotel> = hotelDao.getHotelById(id)
 }
