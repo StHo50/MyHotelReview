@@ -6,11 +6,11 @@ import com.example.myhotelreview.model.User
 
 class UserRepository(private val userDao: UserDao) {
 
-    fun getUserById(userId: Int): LiveData<User> {
-        return userDao.getUserById(userId)
-    }
+//    fun getUserById(userId: String): LiveData<User> {
+//        return userDao.getUserById(userId)
+//    }
 
-    suspend fun updateUser(user: User) {
-        userDao.updateUser(user)
-    }
+//    suspend fun updateUser(user: User) {
+//        userDao.updateUser(user)
+//    }
 }

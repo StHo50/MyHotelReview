@@ -48,19 +48,24 @@ class FirebaseRepository {
             }
     }
 
-
-    fun updateUserProfile(userId: String, name: String, imageUrl: String, onComplete: (Boolean, String?) -> Unit) {
-        val updates = mapOf("name" to name, "profileImageUrl" to imageUrl)
-        database.child(userId).updateChildren(updates).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                onComplete(true, null)
-            } else {
-                onComplete(false, task.exception?.message)
+    fun updateUser(name: String, imageUrl: String, onComplete: (Boolean, String?) -> Unit) {
+        val user = auth.currentUser
+        if (user != null) {
+            val userId = user.uid
+            val updates = mapOf("name" to name, "imageUrl" to imageUrl)
+            database.child(userId).updateChildren(updates).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    onComplete(true, null)
+                } else {
+                    onComplete(false, task.exception?.message)
+                }
             }
+        } else {
+            onComplete(false, "User not logged in")
         }
     }
 
-    fun fetchUserData(onComplete: (String?, String?, String?) -> Unit) { // Add image URL fetching
+    fun fetchUserData(onComplete: (String?, String?) -> Unit) { // Add image URL fetching
         val user = auth.currentUser
         if (user != null) {
             val userId = user.uid
@@ -68,16 +73,20 @@ class FirebaseRepository {
                 if (it.exists()) {
                     val name = it.child("name").value.toString()
                     val email = it.child("email").value.toString()
-                    val profileImageUrl = it.child("profileImageUrl").value.toString()
-                    onComplete(name, email, profileImageUrl)
+                    onComplete(name, email)
                 } else {
-                    onComplete(null, null, null)
+                    onComplete(null, null)
                 }
             }.addOnFailureListener {
-                onComplete(null, null, null)
+                onComplete(null, null)
             }
         } else {
-            onComplete(null, null, null)
+            onComplete(null, null)
         }
     }
+
+    fun getCurrentUserId(): String? {
+        return auth.currentUser?.uid
+    }
+
 }
