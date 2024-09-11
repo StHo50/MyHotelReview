@@ -8,6 +8,7 @@ class FirebaseRepository {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("Users")
+    private val defaultImageUrl = "https://your-default-image-url.com/default_image.png" // Replace with actual default image URL
 
     fun registerUser(email: String, password: String, name: String, onComplete: (Boolean, String?) -> Unit) {
         auth.createUserWithEmailAndPassword(email, password)
@@ -15,7 +16,11 @@ class FirebaseRepository {
                 if (task.isSuccessful) {
                     val userId = auth.currentUser?.uid
                     if (userId != null) {
-                        val user = mapOf("email" to email, "name" to name)
+                        val user = mapOf(
+                            "email" to email,
+                            "name" to name,
+                            "profileImageUrl" to defaultImageUrl // Add default image URL
+                        )
                         database.child(userId).setValue(user).addOnCompleteListener { dbTask ->
                             if (dbTask.isSuccessful) {
                                 onComplete(true, null)
@@ -43,23 +48,36 @@ class FirebaseRepository {
             }
     }
 
-    fun fetchUserData(onComplete: (String?, String?) -> Unit) {
+
+    fun updateUserProfile(userId: String, name: String, imageUrl: String, onComplete: (Boolean, String?) -> Unit) {
+        val updates = mapOf("name" to name, "profileImageUrl" to imageUrl)
+        database.child(userId).updateChildren(updates).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                onComplete(true, null)
+            } else {
+                onComplete(false, task.exception?.message)
+            }
+        }
+    }
+
+    fun fetchUserData(onComplete: (String?, String?, String?) -> Unit) { // Add image URL fetching
         val user = auth.currentUser
         if (user != null) {
             val userId = user.uid
             database.child(userId).get().addOnSuccessListener {
                 if (it.exists()) {
-                    val email = it.child("email").value.toString()
                     val name = it.child("name").value.toString()
-                    onComplete(name, email)
+                    val email = it.child("email").value.toString()
+                    val profileImageUrl = it.child("profileImageUrl").value.toString()
+                    onComplete(name, email, profileImageUrl)
                 } else {
-                    onComplete(null, null)
+                    onComplete(null, null, null)
                 }
             }.addOnFailureListener {
-                onComplete(null, null)
+                onComplete(null, null, null)
             }
         } else {
-            onComplete(null, null)
+            onComplete(null, null, null)
         }
     }
 }

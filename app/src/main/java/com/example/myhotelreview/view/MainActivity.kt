@@ -32,6 +32,21 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
 
+                R.id.nav_profile -> {
+                    // Check if user is authenticated
+                    if (auth.currentUser != null) {
+                        val fragment = ProfileFragment()
+                        supportFragmentManager.beginTransaction()
+                            .replace(R.id.fragment_container, fragment)
+                            .commit()
+                    } else {
+                        // If the user is not authenticated, redirect to LoginActivity
+                        startActivity(Intent(this, LoginActivity::class.java))
+                        finish()
+                    }
+                    true
+                }
+
                 R.id.nav_logout -> {
                     auth.signOut()
                     startActivity(Intent(this, LoginActivity::class.java))

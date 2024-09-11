@@ -17,7 +17,7 @@ class MainViewModel : ViewModel() {
     }
 
     private fun fetchWelcomeMessage() {
-        firebaseRepository.fetchUserData { name, email ->
+        firebaseRepository.fetchUserData { name, email, profileImageUrl ->
             if (name != null) {
                 _welcomeMessage.value = "Welcome, $name"
             } else {
