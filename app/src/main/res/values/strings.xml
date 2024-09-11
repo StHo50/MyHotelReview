@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">MyHotelReview</string>
     <string name="back_button">Back</string>
+    <string name="label_location">Location: %1$s</string>
+    <string name="label_rating">Rating: %1$s</string>
+    <string name="label_stars">Stars: %1$s</string>
+    <string name="free_cancellation">Free Cancellation</string>
+    <string name="pre_payment">Prepayment Required</string>
+    <string name="breakfast_included">Breakfast Included</string>
 </resources>

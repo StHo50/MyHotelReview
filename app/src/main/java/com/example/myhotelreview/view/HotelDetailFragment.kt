@@ -31,26 +31,50 @@ class HotelDetailFragment : Fragment() {
 
         val hotelId = arguments?.getInt(ARG_HOTEL_ID)
         if (hotelId != null) {
-            // Observe the hotel detail
+
             hotelViewModel.getHotelById(hotelId).observe(viewLifecycleOwner, Observer { hotel ->
                 if (hotel != null) {
-                    // Populate the UI with the hotel details
                     view.findViewById<TextView>(R.id.tvHotelName).text = hotel.name
-                    view.findViewById<TextView>(R.id.tvHotelLocation).text = hotel.location
-                    view.findViewById<TextView>(R.id.tvHotelRating).text = hotel.rating.toString()
-                    view.findViewById<TextView>(R.id.tvHotelStars).text = hotel.stars.toString()
+
                     view.findViewById<TextView>(R.id.tvHotelDescription).text = hotel.description
 
-                    // Load image with Picasso
+                    view.findViewById<TextView>(R.id.tvHotelLocation).text =
+                        getString(R.string.label_location, hotel.location)
+
+                    view.findViewById<TextView>(R.id.tvHotelRating).text =
+                        getString(R.string.label_rating, hotel.rating.toString())
+
+                    view.findViewById<TextView>(R.id.tvHotelStars).text =
+                        getString(R.string.label_stars, hotel.stars.toString())
+
                     val imageView: ImageView = view.findViewById(R.id.ivHotelImage)
                     Picasso.get().load(hotel.image).into(imageView)
+
+                    if (hotel.freeCancellation) {
+                        view.findViewById<TextView>(R.id.tvFreeCancellation).apply {
+                            text = getString(R.string.free_cancellation)
+                            visibility = View.VISIBLE
+                        }
+                    }
+
+                    if (hotel.prePayment) {
+                        view.findViewById<TextView>(R.id.tvPrePayment).apply {
+                            text = getString(R.string.pre_payment)
+                            visibility = View.VISIBLE
+                        }
+                    }
+
+                    if (hotel.breakfast) {
+                        view.findViewById<TextView>(R.id.tvBreakfastIncluded).apply {
+                            text = getString(R.string.breakfast_included)
+                            visibility = View.VISIBLE
+                        }
+                    }
                 } else {
-                    // Handle the case where the hotel was not found
                     showError("Hotel details not found.")
                 }
             })
         } else {
-            // Handle the case where hotelId is null
             showError("Invalid hotel ID.")
         }
 
@@ -59,13 +83,10 @@ class HotelDetailFragment : Fragment() {
         }
     }
 
-
-
     private fun showError(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
 
     }
-
 
     companion object {
         private const val ARG_HOTEL_ID = "hotel_id"
