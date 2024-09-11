@@ -9,38 +9,43 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.example.myhotelreview.R
 import com.example.myhotelreview.viewmodel.MainViewModel
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
 
-    private val mainViewModel: MainViewModel by viewModels()
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
-        val btnLogout = findViewById<Button>(R.id.btnLogout)
-        val btnHotels = findViewById<Button>(R.id.btnHotels)
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
-        mainViewModel.welcomeMessage.observe(this, Observer { message ->
-            tvWelcome.text = message
-        })
+        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_hotels -> {
+                    val fragment = HotelsFragment()
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, fragment)
+                        .commit()
+                    true
+                }
 
-        btnLogout.setOnClickListener {
-            auth.signOut()
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
+                R.id.nav_logout -> {
+                    auth.signOut()
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                    true
+                }
+
+                else -> false
+            }
         }
 
-        btnHotels.setOnClickListener {
-            val fragment = HotelsFragment()
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
-                .commit()
-        }
-
+        // Set default selected item to hotels
+        bottomNavigationView.selectedItemId = R.id.nav_hotels
     }
+
+
 }
