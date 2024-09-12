@@ -1,16 +1,44 @@
 package com.example.myhotelreview.model
 
+import android.content.Context
 import androidx.lifecycle.LiveData
-import com.example.myhotelreview.model.UserDao
-import com.example.myhotelreview.model.User
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-class UserRepository(private val userDao: UserDao) {
+class UserRepository(context: Context) {
 
-//    fun getUserById(userId: String): LiveData<User> {
-//        return userDao.getUserById(userId)
-//    }
+    private val userDao: UserDao
 
-//    suspend fun updateUser(user: User) {
-//        userDao.updateUser(user)
-//    }
+    init {
+        val database = UserDatabase.getDatabase(context)
+        userDao = database.userDao()
+    }
+
+    suspend fun insertUser(user: User) {
+        withContext(Dispatchers.IO) {
+            userDao.insertUser(user)
+        }
+    }
+
+    fun getUserByIdLive(id: String): LiveData<User?> {
+        return userDao.getUserByIdLive(id)
+    }
+
+    suspend fun getUserById(id: String): User? {
+        return withContext(Dispatchers.IO) {
+            userDao.getUserById(id)
+        }
+    }
+
+    suspend fun updateUser(user: User) {
+        withContext(Dispatchers.IO) {
+            userDao.updateUser(user)
+        }
+    }
+
+    suspend fun deleteUser(user: User) {
+        withContext(Dispatchers.IO) {
+            userDao.deleteUser(user)
+        }
+    }
 }

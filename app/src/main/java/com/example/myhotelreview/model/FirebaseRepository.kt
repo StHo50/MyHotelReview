@@ -1,14 +1,12 @@
 package com.example.myhotelreview.model
 
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 
 class FirebaseRepository {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("Users")
-    private val defaultImageUrl = "https://your-default-image-url.com/default_image.png" // Replace with actual default image URL
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
     fun registerUser(email: String, password: String, name: String, onComplete: (Boolean, String?) -> Unit) {
         auth.createUserWithEmailAndPassword(email, password)
@@ -16,18 +14,19 @@ class FirebaseRepository {
                 if (task.isSuccessful) {
                     val userId = auth.currentUser?.uid
                     if (userId != null) {
-                        val user = mapOf(
+                        val user = hashMapOf(
                             "email" to email,
-                            "name" to name,
-                            "profileImageUrl" to defaultImageUrl // Add default image URL
+                            "name" to name
                         )
-                        database.child(userId).setValue(user).addOnCompleteListener { dbTask ->
-                            if (dbTask.isSuccessful) {
-                                onComplete(true, null)
-                            } else {
-                                onComplete(false, dbTask.exception?.message)
+                        firestore.collection("Users").document(userId)
+                            .set(user)
+                            .addOnCompleteListener { dbTask ->
+                                if (dbTask.isSuccessful) {
+                                    onComplete(true, null)
+                                } else {
+                                    onComplete(false, dbTask.exception?.message)
+                                }
                             }
-                        }
                     } else {
                         onComplete(false, "User ID not found")
                     }
@@ -48,45 +47,50 @@ class FirebaseRepository {
             }
     }
 
-    fun updateUser(name: String, imageUrl: String, onComplete: (Boolean, String?) -> Unit) {
-        val user = auth.currentUser
-        if (user != null) {
-            val userId = user.uid
-            val updates = mapOf("name" to name, "imageUrl" to imageUrl)
-            database.child(userId).updateChildren(updates).addOnCompleteListener { task ->
+    fun getUserByIdFromFirestore(userId: String, onComplete: (User?) -> Unit) {
+        firestore.collection("Users").document(userId).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val name = document.getString("name") ?: ""
+                    val email = document.getString("email") ?: ""
+                    val imageUrl = document.getString("imageUrl")
+
+                    val user = User(
+                        id = userId,
+                        name = name,
+                        email = email,
+                        imageUrl = imageUrl
+                    )
+                    onComplete(user)
+                } else {
+                    onComplete(null)
+                }
+            }
+            .addOnFailureListener {
+                onComplete(null)
+            }
+    }
+
+    fun updateUserProfile(user: User, onComplete: (Boolean, String?) -> Unit) {
+        val userId = user.id
+        val userUpdates = mutableMapOf<String, Any>(
+            "name" to user.name,
+            "email" to user.email
+        )
+
+        if (!user.imageUrl.isNullOrEmpty()) {
+            userUpdates["imageUrl"] = user.imageUrl
+        }
+
+        firestore.collection("Users").document(userId)
+            .update(userUpdates)
+            .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     onComplete(true, null)
                 } else {
                     onComplete(false, task.exception?.message)
                 }
             }
-        } else {
-            onComplete(false, "User not logged in")
-        }
-    }
-
-    fun fetchUserData(onComplete: (String?, String?) -> Unit) { // Add image URL fetching
-        val user = auth.currentUser
-        if (user != null) {
-            val userId = user.uid
-            database.child(userId).get().addOnSuccessListener {
-                if (it.exists()) {
-                    val name = it.child("name").value.toString()
-                    val email = it.child("email").value.toString()
-                    onComplete(name, email)
-                } else {
-                    onComplete(null, null)
-                }
-            }.addOnFailureListener {
-                onComplete(null, null)
-            }
-        } else {
-            onComplete(null, null)
-        }
-    }
-
-    fun getCurrentUserId(): String? {
-        return auth.currentUser?.uid
     }
 
 }

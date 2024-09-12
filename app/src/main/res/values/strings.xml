@@ -7,4 +7,8 @@
     <string name="free_cancellation">Free Cancellation</string>
     <string name="pre_payment">Prepayment Required</string>
     <string name="breakfast_included">Breakfast Included</string>
+    <string name="profile_image_desc">Profile Image</string>
+    <string name="edit_button">Edit</string>
+    <string name="enter_name">Enter your name</string>
+    <string name="save_button">Save</string>
 </resources>

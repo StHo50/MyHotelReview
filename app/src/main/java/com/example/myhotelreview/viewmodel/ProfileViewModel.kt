@@ -1,65 +1,53 @@
 package com.example.myhotelreview.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myhotelreview.model.FirebaseRepository
 import com.example.myhotelreview.model.User
-import com.example.myhotelreview.model.UserDao
+import com.example.myhotelreview.model.UserRepository
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
-class ProfileViewModel(
-    private val firebaseRepository: FirebaseRepository,
-    private val userDao: UserDao
-) : ViewModel() {
+class ProfileViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _user = MutableLiveData<User>()
-    val user: LiveData<User> get() = _user
+    private val userRepository = UserRepository(application)
+    private val firebaseRepository = FirebaseRepository()
 
-    fun fetchUserData() {
+    fun getUserProfile(): LiveData<User?> {
+        val currentUserId = getCurrentUserId()
         viewModelScope.launch {
-            // Try to fetch user from Firebase
-            firebaseRepository.fetchUserData { name, email ->
-                if (name != null && email != null) {
-                    val currentUser = User(id = firebaseRepository.getCurrentUserId() ?: "", name = name, email = email, imageUrl = "")
-                    // Save user locally in Room
-                    launch {
-                        userDao.insertUser(currentUser)
+            val user = userRepository.getUserById(currentUserId)
+            if (user == null) {
+                firebaseRepository.getUserByIdFromFirestore(currentUserId) { firestoreUser ->
+                    firestoreUser?.let {
+                        viewModelScope.launch {
+                            userRepository.insertUser(it)
+                        }
                     }
-                    _user.value = currentUser
+                }
+            }
+        }
+        return userRepository.getUserByIdLive(currentUserId)
+    }
+
+    fun saveUserProfile(user: User) {
+        // Save the user to Room database
+        viewModelScope.launch {
+            userRepository.updateUser(user)
+        }
+
+        firebaseRepository.updateUserProfile(user) { success, errorMessage ->
+            if (!success) {
+                errorMessage?.let {
+                    println("Error updating profile: $it")
                 }
             }
         }
     }
 
-
-    fun updateUser(name: String, imageUrl: String) {
-        viewModelScope.launch {
-            val userId = requireNotNull(firebaseRepository.getCurrentUserId()) { "User ID is null" }
-
-            // Update in Firebase
-            firebaseRepository.updateUser(name, imageUrl) { success, message ->
-                if (success) {
-                    // Update locally in Room
-                    val updatedUser = User(
-                        id = userId,
-                        name = name,
-                        email = user.value?.email ?: "",
-                        imageUrl = imageUrl
-                    )
-                    viewModelScope.launch {
-                        userDao.updateUser(updatedUser)
-                    }
-                    _user.value = updatedUser
-                }
-            }
-        }
+    fun getCurrentUserId(): String {
+        return FirebaseAuth.getInstance().currentUser?.uid ?: ""
     }
-//    fun getCurrentUserFromRoom() {
-//        viewModelScope.launch {
-//            val currentUser = userDao.getUserById(firebaseRepository.getCurrentUserId())
-//            currentUser?.let { _user.value = it }
-//        }
-//    }
 }
