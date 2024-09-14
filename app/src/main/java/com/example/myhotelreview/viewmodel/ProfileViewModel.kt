@@ -33,9 +33,12 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun saveUserProfile(user: User) {
-        // Save the user to Room database
         viewModelScope.launch {
-            userRepository.updateUser(user)
+            try {
+                userRepository.updateUser(user)
+            } catch (e: Exception) {
+                println("Error updating user in Room: ${e.message}")
+            }
         }
 
         firebaseRepository.updateUserProfile(user) { success, errorMessage ->

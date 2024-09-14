@@ -1,13 +1,20 @@
 package com.example.myhotelreview.viewmodel
 
+import android.app.Application
 import android.content.Context
 import android.widget.Toast
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.myhotelreview.model.FirebaseRepository
+import com.example.myhotelreview.model.User
+import com.example.myhotelreview.model.UserRepository
+import kotlinx.coroutines.launch
 
-class RegisterViewModel : ViewModel() {
+class RegisterViewModel(application: Application) : AndroidViewModel(application) {
 
     private val firebaseRepository = FirebaseRepository()
+    private val userRepository: UserRepository = UserRepository(application)
 
     fun register(email: String, password: String, name: String, context: Context, callback: (Boolean) -> Unit) {
         if (email.isEmpty() || password.isEmpty() || name.isEmpty()) {
@@ -19,15 +26,26 @@ class RegisterViewModel : ViewModel() {
         } else {
             firebaseRepository.registerUser(email, password, name) { isSuccess, errorMessage ->
                 if (isSuccess) {
+                    val userId = firebaseRepository.getCurrentUserId()
+                    if (userId != null) {
+                        val user = User(id = userId, name = name, email = email)
+
+                        // Save user data in Room locally
+                        viewModelScope.launch {
+                            userRepository.insertUser(user)
+                        }
+                    }
+
                     Toast.makeText(context, "Registration Successful", Toast.LENGTH_SHORT).show()
-                    callback(true) // Success callback
+                    callback(true)
                 } else {
                     Toast.makeText(context, "Registration Failed: $errorMessage", Toast.LENGTH_SHORT).show()
-                    callback(false) // Failure callback
+                    callback(false)
                 }
             }
         }
     }
+
 
     private fun isValidPassword(password: String): Boolean {
         val passwordPattern = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@\$!%*?&])[A-Za-z\\d@\$!%*?&]{6,}$")

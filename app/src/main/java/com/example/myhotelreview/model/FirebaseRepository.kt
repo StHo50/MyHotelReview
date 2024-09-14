@@ -93,4 +93,8 @@ class FirebaseRepository {
             }
     }
 
+    fun getCurrentUserId(): String? {
+        return auth.currentUser?.uid
+    }
+
 }
