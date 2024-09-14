@@ -1,66 +1,62 @@
 package com.example.myhotelreview.view
 
-import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.TextView
-import androidx.activity.viewModels
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
+import androidx.navigation.NavController
 import com.example.myhotelreview.R
-import com.example.myhotelreview.viewmodel.MainViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var navController: NavController
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private lateinit var bottomNavigationView: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = navHostFragment.navController
+        bottomNavigationView = findViewById(R.id.bottom_navigation)
 
-        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+        bottomNavigationView.setupWithNavController(navController)
+
+        //Hiding the bottom menu from the login and register pages
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.loginFragment, R.id.registerFragment -> bottomNavigationView.visibility = View.GONE
+                else -> bottomNavigationView.visibility = View.VISIBLE
+            }
+        }
+
+        bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_hotels -> {
-                    val fragment = HotelsFragment()
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, fragment)
-                        .commit()
+                    navController.navigate(R.id.hotelsFragment)
                     true
                 }
-
                 R.id.nav_profile -> {
-                    // Check if user is authenticated
-                    if (auth.currentUser != null) {
-                        val fragment = ProfileFragment()
-                        supportFragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, fragment)
-                            .commit()
-                    } else {
-                        // If the user is not authenticated, redirect to LoginActivity
-                        startActivity(Intent(this, LoginActivity::class.java))
-                        finish()
-                    }
+                    navController.navigate(R.id.profileFragment)
                     true
                 }
-
                 R.id.nav_logout -> {
                     auth.signOut()
-                    startActivity(Intent(this, LoginActivity::class.java))
-                    finish()
+                    navController.navigate(R.id.loginFragment)
                     true
                 }
-
                 else -> false
             }
         }
 
-        // Set default selected item to hotels
-        bottomNavigationView.selectedItemId = R.id.nav_hotels
+        if (auth.currentUser == null) {
+            navController.navigate(R.id.loginFragment)
+        } else {
+            navController.navigate(R.id.hotelsFragment)
+        }
     }
-
-
 }

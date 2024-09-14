@@ -1,28 +1,29 @@
 package com.example.myhotelreview.viewmodel
 
 import android.content.Context
-import android.content.Intent
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
-import com.example.myhotelreview.view.LoginActivity
 import com.example.myhotelreview.model.FirebaseRepository
 
 class RegisterViewModel : ViewModel() {
 
     private val firebaseRepository = FirebaseRepository()
 
-    fun register(email: String, password: String, name: String, context: Context) {
+    fun register(email: String, password: String, name: String, context: Context, callback: (Boolean) -> Unit) {
         if (email.isEmpty() || password.isEmpty() || name.isEmpty()) {
             Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            callback(false)
         } else if (!isValidPassword(password)) {
             showPasswordGuidelinesDialog(context)
+            callback(false)
         } else {
             firebaseRepository.registerUser(email, password, name) { isSuccess, errorMessage ->
                 if (isSuccess) {
                     Toast.makeText(context, "Registration Successful", Toast.LENGTH_SHORT).show()
-                    context.startActivity(Intent(context, LoginActivity::class.java))
+                    callback(true) // Success callback
                 } else {
                     Toast.makeText(context, "Registration Failed: $errorMessage", Toast.LENGTH_SHORT).show()
+                    callback(false) // Failure callback
                 }
             }
         }

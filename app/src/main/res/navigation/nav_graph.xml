@@ -1,0 +1,49 @@
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.myhotelreview.view.LoginFragment"
+        android:label="Login">
+        <action
+            android:id="@+id/action_loginFragment_to_hotelsFragment"
+            app:destination="@id/hotelsFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_registerFragment"
+            app:destination="@id/registerFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/hotelsFragment"
+        android:name="com.example.myhotelreview.view.HotelsFragment"
+        android:label="Hotels">
+        <action
+            android:id="@+id/action_hotelsFragment_to_hotelDetailFragment"
+            app:destination="@id/hotelDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/hotelDetailFragment"
+        android:name="com.example.myhotelreview.view.HotelDetailFragment"
+        android:label="Hotel Details">
+        <argument
+            android:name="hotelId"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.example.myhotelreview.view.RegisterFragment"
+        android:label="Register">
+        <action
+            android:id="@+id/action_registerFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.myhotelreview.view.ProfileFragment"
+        android:label="Profile" />
+
+</navigation>

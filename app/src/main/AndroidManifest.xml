@@ -12,13 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyHotelReview"
         tools:targetApi="31">
-        <activity
-            android:name=".view.RegisterActivity"
-            android:exported="false" />
-        <activity android:name=".view.MainActivity" />
 
         <activity
-            android:name=".view.LoginActivity"
+            android:name=".view.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

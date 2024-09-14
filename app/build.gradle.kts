@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("com.google.gms.google-services")
     id("kotlin-kapt")
+    id("androidx.navigation.safeargs")
+
 }
 
 android {
@@ -49,6 +51,8 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.navigation.fragment.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -66,4 +70,6 @@ dependencies {
     implementation ("androidx.room:room-ktx:2.6.1")
     implementation ("com.squareup.picasso:picasso:2.8")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1")
+    implementation ("androidx.navigation:navigation-ui-ktx")
+
 }
