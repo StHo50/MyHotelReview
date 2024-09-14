@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.myhotelreview.model.FirebaseRepository
 import com.example.myhotelreview.model.Hotel
 import com.example.myhotelreview.model.HotelRepository
 import kotlinx.coroutines.launch
@@ -18,10 +19,34 @@ class HotelViewModel(application: Application) : AndroidViewModel(application) {
 
     fun fetchHotels() {
         viewModelScope.launch {
-            val hotelList = repository.getAllHotels()
-            _hotels.value = hotelList
+            var hotelList = repository.getAllHotels() // Fetch hotels from Room
+
+
+            if (hotelList.isNotEmpty()) {
+                _hotels.postValue(hotelList)
+
+                // Sync with Firestore to check if there is more updated data
+                val firestoreHasUpdatedData = repository.syncHotelsWithFirestore()
+
+                if (firestoreHasUpdatedData) {
+                    // If Firestore has updated data, fetch it again from Room
+                    hotelList = repository.getAllHotels()
+                    _hotels.postValue(hotelList)  // Update UI with the latest data from Firestore
+                }
+
+            } else {
+                val success = repository.syncHotelsWithFirestore() // If Room is empty, sync directly with Firestore
+
+                if (success) {
+                    val syncedHotelList = repository.getAllHotels() // Fetch from Room after syncing with Firestore
+                    _hotels.postValue(syncedHotelList)
+                } else {
+                    insertDummyHotels() // If Firestore is also empty, insert dummy data
+                }
+            }
         }
     }
+
 
     fun insertDummyHotels() {
 
@@ -62,8 +87,10 @@ class HotelViewModel(application: Application) : AndroidViewModel(application) {
                 Hotel(name = "Hotel DD", description = "Close to major attractions.", location = "City DD", image = "https://cf.bstatic.com/xdata/images/hotel/square240/320805814.webp?k=cc4348180ba06779a006a2f2affb2df6ae16bd2b12645001ea6418b2204603fe&o=", stars = 4, rating = 8.3f, freeCancellation = true, prePayment = true, breakfast = true)
             )
 
-            dummyHotels.forEach { repository.insertHotel(it) }
-            fetchHotels()
+            dummyHotels.forEach {
+                repository.insertHotel(it) // Insert into both Room and Firestore
+            }
+            _hotels.postValue(dummyHotels)
         }
     }
 
