@@ -90,8 +90,6 @@ class ProfileFragment : Fragment() {
         })
     }
 
-
-
     private fun enableEditMode() {
         editNameEditText.isEnabled = true
         editButton.visibility = View.GONE

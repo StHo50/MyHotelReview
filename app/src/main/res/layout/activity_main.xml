@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     tools:context=".view.MainActivity">
 
-    <!-- NavHostFragment to handle fragment navigation -->
     <fragment
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
@@ -14,12 +13,12 @@
         app:navGraph="@navigation/nav_graph"
         app:defaultNavHost="true" />
 
-    <!-- BottomNavigationView (if applicable) -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:menu="@menu/bottom_nav_menu" />
+        app:menu="@menu/bottom_nav_menu"
+        app:labelVisibilityMode="labeled" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

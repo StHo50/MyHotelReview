@@ -46,4 +46,9 @@
         android:name="com.example.myhotelreview.view.ProfileFragment"
         android:label="Profile" />
 
+    <fragment
+        android:id="@+id/myCommentsFragment"
+        android:name="com.example.myhotelreview.view.MyCommentsFragment"
+        android:label="My Comments" />
+
 </navigation>

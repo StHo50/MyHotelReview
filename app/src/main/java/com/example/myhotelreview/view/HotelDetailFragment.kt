@@ -1,9 +1,12 @@
 package com.example.myhotelreview.view
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -12,13 +15,18 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.myhotelreview.R
+import com.example.myhotelreview.model.Comment
 import com.example.myhotelreview.viewmodel.HotelViewModel
 import com.squareup.picasso.Picasso
 
 class HotelDetailFragment : Fragment() {
 
     private val hotelViewModel: HotelViewModel by viewModels()
+    private lateinit var commentAdapter: CommentAdapter
+    private var selectedImageUri: Uri? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,6 +42,15 @@ class HotelDetailFragment : Fragment() {
         val hotelId = arguments?.let {
             HotelDetailFragmentArgs.fromBundle(it).hotelId
         }
+        val rvComments = view.findViewById<RecyclerView>(R.id.rvComments)
+        val etComment = view.findViewById<EditText>(R.id.etComment)
+        val btnSubmitComment = view.findViewById<Button>(R.id.btnSubmitComment)
+        val btnSelectImage = view.findViewById<Button>(R.id.btnSelectImage)
+
+        // Initialize RecyclerView for displaying comments
+        commentAdapter = CommentAdapter(emptyList())
+        rvComments.layoutManager = LinearLayoutManager(context)
+        rvComments.adapter = commentAdapter
 
         if (hotelId != null) {
             hotelViewModel.getHotelById(hotelId).observe(viewLifecycleOwner, Observer { hotel ->
@@ -61,9 +78,43 @@ class HotelDetailFragment : Fragment() {
                     showError("Hotel details not found.")
                 }
             })
+            hotelViewModel.getCommentsForHotel(hotelId).observe(viewLifecycleOwner, Observer { comments ->
+                commentAdapter.updateComments(comments)
+            })
         } else {
             showError("Invalid hotel ID.")
         }
+
+        btnSelectImage.setOnClickListener {
+            // Need to implement logic to select an image
+        }
+
+        btnSubmitComment.setOnClickListener {
+            val commentText = etComment.text.toString()
+
+            if (commentText.isNotEmpty()) {
+                val userId = hotelViewModel.getCurrentUserId()
+
+                // Fetch the user name asynchronously
+                hotelViewModel.getCurrentUserName { userName ->
+                    val comment = Comment(
+                        hotelId = hotelId ?: 0,
+                        userId = userId,
+                        userName = userName, // This is now set after fetching the user name
+                        text = commentText,
+                        imageUrl = selectedImageUri?.toString() // Optional image URL
+                    )
+
+                    // Save the comment
+                    hotelViewModel.addComment(comment)
+
+                    // Clear the input after submission
+                    etComment.text.clear()
+                    selectedImageUri = null
+                }
+            }
+        }
+
 
         view.findViewById<ImageButton>(R.id.btnBack).setOnClickListener {
             requireActivity().onBackPressed()

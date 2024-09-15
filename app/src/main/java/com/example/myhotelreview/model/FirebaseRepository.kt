@@ -105,7 +105,7 @@ class FirebaseRepository {
 
     suspend fun getAllHotelsFromFirestore(): List<Hotel>? {
         return try {
-            val result = firestore.collection("Hotels").get().await() // Await the result
+            val result = firestore.collection("Hotels").get().await()
             val hotels = result.map { document ->
                 Hotel(
                     id = document.getLong("id")?.toInt() ?: 0,
@@ -122,11 +122,10 @@ class FirebaseRepository {
             }
             hotels
         } catch (e: Exception) {
-            null // Return null in case of failure
+            null
         }
     }
 
-    // Suspending function to insert hotel into Firestore
     suspend fun insertHotelToFirestore(hotel: Hotel): Boolean {
         return try {
             val hotelData = hashMapOf(
@@ -141,11 +140,51 @@ class FirebaseRepository {
                 "prePayment" to hotel.prePayment,
                 "breakfast" to hotel.breakfast
             )
-            firestore.collection("Hotels").add(hotelData).await() // Await the result
+            firestore.collection("Hotels").add(hotelData).await()
             true
         } catch (e: Exception) {
-            false // Return false in case of failure
+            false
         }
     }
+
+    fun insertCommentToFirestore(comment: Comment, onComplete: (Boolean) -> Unit) {
+        val commentData = hashMapOf(
+            "hotelId" to comment.hotelId,
+            "userId" to comment.userId,
+            "userName" to comment.userName,
+            "text" to comment.text,
+            "imageUrl" to comment.imageUrl,
+            "timestamp" to comment.timestamp
+        )
+
+        firestore.collection("Comments").add(commentData)
+            .addOnCompleteListener { task ->
+                onComplete(task.isSuccessful)
+            }
+    }
+
+    fun getCommentsForHotel(hotelId: Int, onComplete: (List<Comment>?) -> Unit) {
+        firestore.collection("Comments")
+            .whereEqualTo("hotelId", hotelId)
+            .get()
+            .addOnSuccessListener { result ->
+                val comments = result.map { document ->
+                    Comment(
+                        id = document.getLong("id")?.toInt() ?: 0,
+                        hotelId = hotelId,
+                        userId = document.getString("userId") ?: "",
+                        userName = document.getString("userName") ?: "",
+                        text = document.getString("text") ?: "",
+                        imageUrl = document.getString("imageUrl"),
+                        timestamp = document.getLong("timestamp") ?: System.currentTimeMillis()
+                    )
+                }
+                onComplete(comments)
+            }
+            .addOnFailureListener {
+                onComplete(null)
+            }
+    }
+
 }
 

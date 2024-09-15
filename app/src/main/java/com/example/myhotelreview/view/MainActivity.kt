@@ -44,6 +44,10 @@ class MainActivity : AppCompatActivity() {
                     navController.navigate(R.id.profileFragment)
                     true
                 }
+                R.id.nav_my_comments -> {
+                    navController.navigate(R.id.myCommentsFragment)
+                    true
+                }
                 R.id.nav_logout -> {
                     auth.signOut()
                     navController.navigate(R.id.loginFragment)

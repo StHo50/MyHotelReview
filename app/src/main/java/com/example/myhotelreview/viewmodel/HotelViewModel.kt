@@ -5,14 +5,20 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.myhotelreview.model.Comment
+import com.example.myhotelreview.model.CommentRepository
 import com.example.myhotelreview.model.FirebaseRepository
 import com.example.myhotelreview.model.Hotel
 import com.example.myhotelreview.model.HotelRepository
+import com.example.myhotelreview.model.UserRepository
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class HotelViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: HotelRepository = HotelRepository(application)
+    private val commentsRepository: CommentRepository = CommentRepository(application)
+    private val userRepository: UserRepository = UserRepository(application)
 
     private val _hotels = MutableLiveData<List<Hotel>>()
     val hotels: LiveData<List<Hotel>> get() = _hotels
@@ -96,6 +102,35 @@ class HotelViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getHotelById(id: Int): LiveData<Hotel> {
         return repository.getHotelById(id)
+    }
+
+    fun addComment(comment: Comment) {
+        viewModelScope.launch {
+            commentsRepository.insertComment(comment)
+        }
+    }
+
+    fun getCommentsForHotel(hotelId: Int): LiveData<List<Comment>> {
+        return commentsRepository.getCommentsForHotel(hotelId)
+    }
+
+    fun getCurrentUserId(): String {
+        return FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    }
+
+    fun getCurrentUserName(onComplete: (String) -> Unit) {
+        val userId = getCurrentUserId()
+        if (userId.isNotEmpty()) {
+            userRepository.getUserByIdLive(userId).observeForever { user ->
+                if (user != null) {
+                    onComplete(user.name) // Return the user's name
+                } else {
+                    onComplete("Anonymous") // If user not found, return "Anonymous"
+                }
+            }
+        } else {
+            onComplete("Anonymous")
+        }
     }
 
 }
