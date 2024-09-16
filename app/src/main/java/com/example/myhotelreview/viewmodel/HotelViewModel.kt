@@ -123,9 +123,9 @@ class HotelViewModel(application: Application) : AndroidViewModel(application) {
         if (userId.isNotEmpty()) {
             userRepository.getUserByIdLive(userId).observeForever { user ->
                 if (user != null) {
-                    onComplete(user.name) // Return the user's name
+                    onComplete(user.name)
                 } else {
-                    onComplete("Anonymous") // If user not found, return "Anonymous"
+                    onComplete("Anonymous")
                 }
             }
         } else {

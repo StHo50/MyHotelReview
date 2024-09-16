@@ -38,7 +38,6 @@ class HotelDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Fetch the hotel ID passed as an argument
         val hotelId = arguments?.let {
             HotelDetailFragmentArgs.fromBundle(it).hotelId
         }
@@ -47,7 +46,6 @@ class HotelDetailFragment : Fragment() {
         val btnSubmitComment = view.findViewById<Button>(R.id.btnSubmitComment)
         val btnSelectImage = view.findViewById<Button>(R.id.btnSelectImage)
 
-        // Initialize RecyclerView for displaying comments
         commentAdapter = CommentAdapter(emptyList())
         rvComments.layoutManager = LinearLayoutManager(context)
         rvComments.adapter = commentAdapter
@@ -95,26 +93,23 @@ class HotelDetailFragment : Fragment() {
             if (commentText.isNotEmpty()) {
                 val userId = hotelViewModel.getCurrentUserId()
 
-                // Fetch the user name asynchronously
+                // Fetch the user name
                 hotelViewModel.getCurrentUserName { userName ->
                     val comment = Comment(
                         hotelId = hotelId ?: 0,
                         userId = userId,
-                        userName = userName, // This is now set after fetching the user name
+                        userName = userName,
                         text = commentText,
-                        imageUrl = selectedImageUri?.toString() // Optional image URL
+                        imageUrl = selectedImageUri?.toString()
                     )
 
-                    // Save the comment
                     hotelViewModel.addComment(comment)
 
-                    // Clear the input after submission
                     etComment.text.clear()
                     selectedImageUri = null
                 }
             }
         }
-
 
         view.findViewById<ImageButton>(R.id.btnBack).setOnClickListener {
             requireActivity().onBackPressed()
