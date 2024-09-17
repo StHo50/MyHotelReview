@@ -100,7 +100,8 @@ class HotelDetailFragment : Fragment() {
                         userId = userId,
                         userName = userName,
                         text = commentText,
-                        imageUrl = selectedImageUri?.toString()
+                        imageUrl = selectedImageUri?.toString(),
+                        timestamp = System.currentTimeMillis()
                     )
 
                     hotelViewModel.addComment(comment)
