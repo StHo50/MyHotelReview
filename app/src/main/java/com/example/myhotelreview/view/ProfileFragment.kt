@@ -1,6 +1,7 @@
 package com.example.myhotelreview.view
 
 import android.app.Activity
+import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -17,8 +18,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.myhotelreview.R
 import com.example.myhotelreview.model.User
+import com.example.myhotelreview.service.ImgurAPIservice
 import com.example.myhotelreview.viewmodel.ProfileViewModel
 import com.squareup.picasso.Picasso
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 
 class ProfileFragment : Fragment() {
 
@@ -30,6 +35,8 @@ class ProfileFragment : Fragment() {
     private val viewModel: ProfileViewModel by viewModels()
     private var selectedImageUri: Uri? = null
     private var currentUser: User? = null
+    private val imgurService = ImgurAPIservice()
+
 
     companion object {
         private const val PICK_IMAGE_REQUEST = 1
@@ -58,7 +65,7 @@ class ProfileFragment : Fragment() {
         }
 
         profileImageView.setOnClickListener {
-            pickImageFromGallery()
+            pickImage()
         }
 
         return view
@@ -109,33 +116,78 @@ class ProfileFragment : Fragment() {
                 imageUrl = selectedImageUri?.toString() ?: user.imageUrl
             )
 
-            viewModel.saveUserProfile(updatedUser)
+            // Upload the image to Imgur if a new image was selected
+            selectedImageUri?.let { uri ->
+                val imageFile = convertUriToFile(uri)
+                imageFile?.let {
+                    imgurService.uploadImage(it) { success, imageUrl ->
+                        if (success && imageUrl != null) {
+                            val updatedUserWithImage = updatedUser.copy(imageUrl = imageUrl)
+                            activity?.runOnUiThread {
+                                // Save the new image URL to Room and Firebase
+                                viewModel.saveUserProfile(updatedUserWithImage)
 
-            userNameTextView.text = newName
-            if (!updatedUser.imageUrl.isNullOrEmpty()) {
-                Picasso.get().load(updatedUser.imageUrl).into(profileImageView)
-            } else {
-                Picasso.get().load(R.drawable.default_profile_image).into(profileImageView)
+                                userNameTextView.text = newName
+                                Picasso.get().load(imageUrl).into(profileImageView)
+                                Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show()
+
+                                editNameEditText.isEnabled = false
+                                editButton.visibility = View.VISIBLE
+                                saveButton.visibility = View.GONE
+                            }
+                        } else {
+                            activity?.runOnUiThread {
+                                Toast.makeText(requireContext(), "Image upload failed", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
+            } ?: run {
+                // If no new image, just save the updated name
+                activity?.runOnUiThread {
+                    viewModel.saveUserProfile(updatedUser)
+                    userNameTextView.text = newName
+                    Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show()
+
+                    editNameEditText.isEnabled = false
+                    editButton.visibility = View.VISIBLE
+                    saveButton.visibility = View.GONE
+                }
             }
-
-            Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show()
-
-            editNameEditText.isEnabled = false
-            editButton.visibility = View.VISIBLE
-            saveButton.visibility = View.GONE
         }
     }
 
-    private fun pickImageFromGallery() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+    private fun pickImage() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "image/*"
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
-            selectedImageUri = data.data
+            selectedImageUri = data.data ?: return
             Picasso.get().load(selectedImageUri).into(profileImageView)
         }
     }
+
+    private fun convertUriToFile(uri: Uri): File? {
+        val contentResolver: ContentResolver = requireContext().contentResolver
+        val tempFile = File.createTempFile("temp_image", ".jpg", requireContext().cacheDir)
+
+        try {
+            val inputStream: InputStream? = contentResolver.openInputStream(uri)
+            val outputStream = FileOutputStream(tempFile)
+            inputStream?.copyTo(outputStream)
+            inputStream?.close()
+            outputStream.close()
+
+            return tempFile
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
+    }
+
 }

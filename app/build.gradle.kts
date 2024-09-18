@@ -72,5 +72,5 @@ dependencies {
     implementation ("com.squareup.picasso:picasso:2.8")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1")
     implementation ("androidx.navigation:navigation-ui-ktx")
-
+    implementation ("com.squareup.okhttp3:okhttp:4.9.2")
 }

@@ -80,16 +80,17 @@
 
     <Button
         android:id="@+id/btnSelectImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Select Image"
-        android:layout_marginTop="8dp" />
+        android:layout_width="145dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="8dp"
+        android:text="Select Image" />
 
     <!-- RecyclerView for displaying comments -->
+
     <Button
         android:id="@+id/btnSubmitComment"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="36dp"
         android:layout_marginTop="8dp"
         android:text="Submit" />
 
