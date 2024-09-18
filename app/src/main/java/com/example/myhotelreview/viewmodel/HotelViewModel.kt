@@ -106,9 +106,18 @@ class HotelViewModel(application: Application) : AndroidViewModel(application) {
 
     fun addComment(comment: Comment) {
         viewModelScope.launch {
-            commentsRepository.insertComment(comment)
+            // Check if comment already exists before adding
+            val existingComments = commentsRepository.getCommentsForHotelSync(comment.hotelId)
+            val isDuplicate = existingComments.any { it.text == comment.text }
+
+            if (!isDuplicate) {
+                commentsRepository.insertComment(comment)
+            } else {
+                println("Duplicate comment detected, skipping insertion.")
+            }
         }
     }
+
 
     fun getCommentsForHotel(hotelId: Int): LiveData<List<Comment>> {
         return commentsRepository.getCommentsForHotel(hotelId)

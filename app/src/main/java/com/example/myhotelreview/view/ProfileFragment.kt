@@ -103,10 +103,16 @@ class ProfileFragment : Fragment() {
         saveButton.visibility = View.VISIBLE
     }
 
+    private var isProfileUpdating = false
+
     private fun saveProfileChanges() {
+        if (isProfileUpdating) return
+        isProfileUpdating = true
+
         val newName = editNameEditText.text.toString()
         if (newName.isBlank()) {
             Toast.makeText(requireContext(), "Name cannot be empty", Toast.LENGTH_SHORT).show()
+            isProfileUpdating = false
             return
         }
 
@@ -116,7 +122,6 @@ class ProfileFragment : Fragment() {
                 imageUrl = selectedImageUri?.toString() ?: user.imageUrl
             )
 
-            // Upload the image to Imgur if a new image was selected
             selectedImageUri?.let { uri ->
                 val imageFile = convertUriToFile(uri)
                 imageFile?.let {
@@ -124,38 +129,38 @@ class ProfileFragment : Fragment() {
                         if (success && imageUrl != null) {
                             val updatedUserWithImage = updatedUser.copy(imageUrl = imageUrl)
                             activity?.runOnUiThread {
-                                // Save the new image URL to Room and Firebase
                                 viewModel.saveUserProfile(updatedUserWithImage)
-
-                                userNameTextView.text = newName
-                                Picasso.get().load(imageUrl).into(profileImageView)
-                                Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show()
-
-                                editNameEditText.isEnabled = false
-                                editButton.visibility = View.VISIBLE
-                                saveButton.visibility = View.GONE
+                                updateUIAfterProfileUpdate(newName, imageUrl)
                             }
                         } else {
-                            activity?.runOnUiThread {
-                                Toast.makeText(requireContext(), "Image upload failed", Toast.LENGTH_SHORT).show()
-                            }
+                            showError("Image upload failed")
                         }
                     }
                 }
             } ?: run {
-                // If no new image, just save the updated name
                 activity?.runOnUiThread {
                     viewModel.saveUserProfile(updatedUser)
-                    userNameTextView.text = newName
-                    Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show()
-
-                    editNameEditText.isEnabled = false
-                    editButton.visibility = View.VISIBLE
-                    saveButton.visibility = View.GONE
+                    updateUIAfterProfileUpdate(newName, updatedUser.imageUrl)
                 }
             }
         }
     }
+
+    private fun updateUIAfterProfileUpdate(newName: String, imageUrl: String?) {
+        userNameTextView.text = newName
+        Picasso.get().load(imageUrl).into(profileImageView)
+        Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show()
+        editNameEditText.isEnabled = false
+        editButton.visibility = View.VISIBLE
+        saveButton.visibility = View.GONE
+        isProfileUpdating = false
+    }
+
+    private fun showError(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        isProfileUpdating = false
+    }
+
 
     private fun pickImage() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)

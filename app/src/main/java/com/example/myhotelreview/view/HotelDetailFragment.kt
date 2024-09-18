@@ -77,6 +77,7 @@ class HotelDetailFragment : Fragment() {
                 }
             })
             hotelViewModel.getCommentsForHotel(hotelId).observe(viewLifecycleOwner, Observer { comments ->
+                println("Comments observed in UI: $comments")
                 commentAdapter.updateComments(comments)
             })
         } else {
@@ -120,4 +121,6 @@ class HotelDetailFragment : Fragment() {
     private fun showError(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
+
+
 }

@@ -33,6 +33,10 @@ class CommentRepository(context: Context) {
     fun getCommentsForUser(userId: String): LiveData<List<Comment>> {
         return commentDao.getCommentsForUser(userId)
     }
+
+    suspend fun getCommentsForHotelSync(hotelId: Int): List<Comment> {
+        return commentDao.getCommentsForHotelSync(hotelId)
+    }
 }
 
 
