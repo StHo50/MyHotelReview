@@ -1,112 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/ivHotelImage"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:scaleType="centerCrop" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/tvHotelName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textSize="24sp"
-        android:layout_marginTop="16dp" />
+        <ImageView
+            android:id="@+id/ivHotelImage"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop" />
 
-    <TextView
-        android:id="@+id/tvHotelDescription"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="22sp"
-        android:layout_marginTop="16dp" />
+        <TextView
+            android:id="@+id/tvHotelName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:layout_marginTop="16dp" />
 
-    <TextView
-        android:id="@+id/tvHotelLocation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:layout_marginTop="18dp" />
+        <TextView
+            android:id="@+id/tvHotelDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="22sp"
+            android:layout_marginTop="16dp" />
 
-    <TextView
-        android:id="@+id/tvHotelStars"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:layout_marginTop="8dp" />
+        <TextView
+            android:id="@+id/tvHotelLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:layout_marginTop="18dp" />
 
-    <TextView
-        android:id="@+id/tvHotelRating"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:layout_marginTop="8dp" />
+        <TextView
+            android:id="@+id/tvHotelStars"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:layout_marginTop="8dp" />
 
-    <TextView
-        android:id="@+id/tvFreeCancellation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Free Cancellation"
-        android:visibility="gone" />
+        <TextView
+            android:id="@+id/tvHotelRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:layout_marginTop="8dp" />
 
-    <TextView
-        android:id="@+id/tvPrePayment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Prepayment Required"
-        android:visibility="gone" />
+        <TextView
+            android:id="@+id/tvFreeCancellation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Free Cancellation"
+            android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/tvBreakfastIncluded"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Breakfast Included"
-        android:visibility="gone" />
+        <TextView
+            android:id="@+id/tvPrePayment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Prepayment Required"
+            android:visibility="gone" />
 
-    <EditText
-        android:id="@+id/etComment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Write your comment"
-        android:layout_marginTop="16dp"/>
+        <TextView
+            android:id="@+id/tvBreakfastIncluded"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Breakfast Included"
+            android:visibility="gone" />
 
-    <Button
-        android:id="@+id/btnSelectImage"
-        android:layout_width="145dp"
-        android:layout_height="36dp"
-        android:layout_marginTop="8dp"
-        android:text="Select Image" />
+        <EditText
+            android:id="@+id/etComment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Write your comment"
+            android:layout_marginTop="16dp"/>
 
-    <!-- RecyclerView for displaying comments -->
+        <ImageView
+            android:id="@+id/ivSelectedImage"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_marginTop="8dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
 
-    <Button
-        android:id="@+id/btnSubmitComment"
-        android:layout_width="wrap_content"
-        android:layout_height="36dp"
-        android:layout_marginTop="8dp"
-        android:text="Submit" />
+        <Button
+            android:id="@+id/btnSelectImage"
+            android:layout_width="145dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="8dp"
+            android:text="Select Image" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvComments"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="16dp"/>
 
-    <ImageButton
-        android:id="@+id/btnBack"
-        android:layout_width="85dp"
-        android:layout_height="63dp"
-        android:background="?attr/selectableItemBackground"
-        android:contentDescription="@string/back_button"
-        android:src="@drawable/arrow_back_24px" />
+        <!-- RecyclerView for displaying comments -->
 
-</LinearLayout>
+        <Button
+            android:id="@+id/btnSubmitComment"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_marginTop="8dp"
+            android:text="Submit" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvComments"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="16dp"/>
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="85dp"
+            android:layout_height="63dp"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/back_button"
+            android:src="@drawable/arrow_back_24px" />
+
+    </LinearLayout>
+</ScrollView>

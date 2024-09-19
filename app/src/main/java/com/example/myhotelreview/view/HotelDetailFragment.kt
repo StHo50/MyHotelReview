@@ -1,5 +1,8 @@
 package com.example.myhotelreview.view
 
+import android.app.Activity
+import android.content.ContentResolver
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -19,15 +22,24 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myhotelreview.R
 import com.example.myhotelreview.model.Comment
+import com.example.myhotelreview.service.ImgurAPIservice
 import com.example.myhotelreview.viewmodel.HotelViewModel
 import com.squareup.picasso.Picasso
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 
 class HotelDetailFragment : Fragment() {
 
     private val hotelViewModel: HotelViewModel by viewModels()
     private lateinit var commentAdapter: CommentAdapter
     private var selectedImageUri: Uri? = null
+    private val imgurService = ImgurAPIservice()
+    private var isCommentSubmitting = false
 
+    companion object {
+        private const val PICK_IMAGE_REQUEST = 1
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,6 +57,7 @@ class HotelDetailFragment : Fragment() {
         val etComment = view.findViewById<EditText>(R.id.etComment)
         val btnSubmitComment = view.findViewById<Button>(R.id.btnSubmitComment)
         val btnSelectImage = view.findViewById<Button>(R.id.btnSelectImage)
+        val ivSelectedImage = view.findViewById<ImageView>(R.id.ivSelectedImage)
 
         commentAdapter = CommentAdapter(emptyList())
         rvComments.layoutManager = LinearLayoutManager(context)
@@ -85,31 +98,39 @@ class HotelDetailFragment : Fragment() {
         }
 
         btnSelectImage.setOnClickListener {
-            // Need to implement logic to select an image
+            pickImage()
         }
 
         btnSubmitComment.setOnClickListener {
             val commentText = etComment.text.toString()
 
-            if (commentText.isNotEmpty()) {
+            if (commentText.isNotEmpty() && !isCommentSubmitting) {
+                isCommentSubmitting = true
+
                 val userId = hotelViewModel.getCurrentUserId()
 
                 // Fetch the user name
                 hotelViewModel.getCurrentUserName { userName ->
-                    val comment = Comment(
-                        hotelId = hotelId ?: 0,
-                        userId = userId,
-                        userName = userName,
-                        text = commentText,
-                        imageUrl = selectedImageUri?.toString(),
-                        timestamp = System.currentTimeMillis()
-                    )
-
-                    hotelViewModel.addComment(comment)
-
-                    etComment.text.clear()
-                    selectedImageUri = null
+                    // Handle image upload if image is selected
+                    selectedImageUri?.let { uri ->
+                        val imageFile = convertUriToFile(uri)
+                        imageFile?.let {
+                            imgurService.uploadImage(it) { success, imageUrl ->
+                                if (success && imageUrl != null) {
+                                    submitComment(hotelId ?: 0, userId, userName, commentText, imageUrl)
+                                } else {
+                                    showError("Image upload failed.")
+                                    isCommentSubmitting = false
+                                }
+                            }
+                        }
+                    } ?: run {
+                        // Submit comment without an image
+                        submitComment(hotelId ?: 0, userId, userName, commentText, null)
+                    }
                 }
+            } else {
+                showError("Comment cannot be empty.")
             }
         }
 
@@ -117,6 +138,63 @@ class HotelDetailFragment : Fragment() {
             requireActivity().onBackPressed()
         }
     }
+
+    private fun submitComment(hotelId: Int, userId: String, userName: String, text: String, imageUrl: String?) {
+        val comment = Comment(
+            hotelId = hotelId,
+            userId = userId,
+            userName = userName,
+            text = text,
+            imageUrl = imageUrl,
+            timestamp = System.currentTimeMillis()
+        )
+
+        hotelViewModel.addComment(comment)
+
+        requireActivity().runOnUiThread {
+            view?.findViewById<EditText>(R.id.etComment)?.text?.clear()
+            selectedImageUri = null
+            isCommentSubmitting = false
+            showError("Comment submitted successfully.")
+        }
+    }
+
+
+    private fun pickImage() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "image/*"
+        startActivityForResult(intent, PICK_IMAGE_REQUEST)
+    }
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            selectedImageUri = data.data ?: return
+            val ivSelectedImage = view?.findViewById<ImageView>(R.id.ivSelectedImage)
+            Picasso.get().load(selectedImageUri).into(ivSelectedImage)
+            ivSelectedImage?.visibility = View.VISIBLE
+        }
+    }
+
+    private fun convertUriToFile(uri: Uri): File? {
+        val contentResolver: ContentResolver = requireContext().contentResolver
+        val tempFile = File.createTempFile("temp_image", ".jpg", requireContext().cacheDir)
+
+        return try {
+            val inputStream: InputStream? = contentResolver.openInputStream(uri)
+            val outputStream = FileOutputStream(tempFile)
+            inputStream?.copyTo(outputStream)
+            inputStream?.close()
+            outputStream.close()
+            tempFile
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
 
     private fun showError(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
