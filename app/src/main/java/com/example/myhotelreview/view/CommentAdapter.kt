@@ -49,7 +49,7 @@ class CommentAdapter(
             } else {
                 ivCommentImage.visibility = View.GONE
             }
-            // Format and display the timestamp
+
             val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
             val date = Date(comment.timestamp)
             tvCommentDate.text = sdf.format(date)

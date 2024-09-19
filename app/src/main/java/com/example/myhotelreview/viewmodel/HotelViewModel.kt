@@ -19,11 +19,14 @@ class HotelViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: HotelRepository = HotelRepository(application)
     private val commentsRepository: CommentRepository = CommentRepository(application)
     private val userRepository: UserRepository = UserRepository(application)
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> get() = _isLoading
 
     private val _hotels = MutableLiveData<List<Hotel>>()
     val hotels: LiveData<List<Hotel>> get() = _hotels
 
     fun fetchHotels() {
+        _isLoading.value = true
         viewModelScope.launch {
             var hotelList = repository.getAllHotels() // Fetch hotels from Room
 
@@ -50,6 +53,7 @@ class HotelViewModel(application: Application) : AndroidViewModel(application) {
                     insertDummyHotels() // If Firestore is also empty, insert dummy data
                 }
             }
+            _isLoading.value = false
         }
     }
 

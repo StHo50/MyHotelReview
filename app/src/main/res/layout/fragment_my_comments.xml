@@ -11,4 +11,7 @@
         android:layout_height="wrap_content"
         android:clipToPadding="false"
         android:scrollbars="vertical" />
+
+    <include layout="@layout/layout_loading_overlay" />
+
 </LinearLayout>

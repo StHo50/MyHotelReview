@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -49,6 +50,16 @@ class HotelDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val loadingOverlay = view.findViewById<FrameLayout>(R.id.loading_overlay)
+
+        hotelViewModel.isLoading.observe(viewLifecycleOwner, Observer { isLoading ->
+            if (isLoading) {
+                loadingOverlay.visibility = View.VISIBLE
+            } else {
+                loadingOverlay.visibility = View.GONE
+            }
+        })
 
         val hotelId = arguments?.let {
             HotelDetailFragmentArgs.fromBundle(it).hotelId

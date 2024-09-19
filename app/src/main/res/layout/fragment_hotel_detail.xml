@@ -123,5 +123,7 @@
             android:contentDescription="@string/back_button"
             android:src="@drawable/arrow_back_24px" />
 
+        <include layout="@layout/layout_loading_overlay" />
+
     </LinearLayout>
 </ScrollView>

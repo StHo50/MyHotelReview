@@ -32,6 +32,7 @@ class ProfileFragment : Fragment() {
     private lateinit var editNameEditText: EditText
     private lateinit var editButton: Button
     private lateinit var saveButton: Button
+    private lateinit var loadingOverlay: View
     private val viewModel: ProfileViewModel by viewModels()
     private var selectedImageUri: Uri? = null
     private var currentUser: User? = null
@@ -46,7 +47,13 @@ class ProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_profile, container, false)
+        return inflater.inflate(R.layout.fragment_profile, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        loadingOverlay = view.findViewById(R.id.loading_overlay)
 
         profileImageView = view.findViewById(R.id.profile_imageview)
         userNameTextView = view.findViewById(R.id.user_name_textview)
@@ -55,6 +62,14 @@ class ProfileFragment : Fragment() {
         saveButton = view.findViewById(R.id.save_button)
 
         setupUserProfile()
+
+        viewModel.isLoading.observe(viewLifecycleOwner, { isLoading ->
+            if (isLoading) {
+                loadingOverlay.visibility = View.VISIBLE
+            } else {
+                loadingOverlay.visibility = View.GONE
+            }
+        })
 
         editButton.setOnClickListener {
             enableEditMode()
@@ -67,12 +82,9 @@ class ProfileFragment : Fragment() {
         profileImageView.setOnClickListener {
             pickImage()
         }
-
-        return view
     }
 
     private fun setupUserProfile() {
-
         viewModel.getUserProfile().observe(viewLifecycleOwner, { user ->
             user?.let {
                 currentUser = it

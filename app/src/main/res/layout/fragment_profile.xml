@@ -4,6 +4,8 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <include layout="@layout/layout_loading_overlay" />
+
     <ImageView
         android:id="@+id/profile_imageview"
         android:layout_width="100dp"

@@ -32,6 +32,17 @@ class HotelsFragment : Fragment() {
         val rvHotels = view.findViewById<RecyclerView>(R.id.rvHotels)
         rvHotels.layoutManager = LinearLayoutManager(context)
 
+
+        val loadingOverlay = view.findViewById<View>(R.id.loading_overlay)
+
+        hotelViewModel.isLoading.observe(viewLifecycleOwner, Observer { isLoading ->
+            if (isLoading) {
+                loadingOverlay.visibility = View.VISIBLE
+            } else {
+                loadingOverlay.visibility = View.GONE
+            }
+        })
+
         // The function below inserts the dummy hotels data, we need to activate it only once in order to not get duplicated data every run, that's why it's a comment.
         // hotelViewModel.insertDummyHotels()
 
