@@ -34,7 +34,7 @@ class ProfileFragment : Fragment() {
     private lateinit var saveButton: Button
     private lateinit var loadingOverlay: View
     private val viewModel: ProfileViewModel by viewModels()
-    private var selectedImageUri: Uri? = null
+    private var profileImageUri: Uri? = null
     private var currentUser: User? = null
     private val imgurService = ImgurAPIservice()
 
@@ -99,7 +99,6 @@ class ProfileFragment : Fragment() {
                         Picasso.get().load(imageUrl).into(profileImageView)
                     } catch (e: Exception) {
                         e.printStackTrace()
-
                         Picasso.get().load(R.drawable.default_profile_image).into(profileImageView)
                     }
                 } else {
@@ -131,10 +130,10 @@ class ProfileFragment : Fragment() {
         currentUser?.let { user ->
             val updatedUser = user.copy(
                 name = newName,
-                imageUrl = selectedImageUri?.toString() ?: user.imageUrl
+                imageUrl = profileImageUri?.toString() ?: user.imageUrl
             )
 
-            selectedImageUri?.let { uri ->
+            profileImageUri?.let { uri ->
                 val imageFile = convertUriToFile(uri)
                 imageFile?.let {
                     imgurService.uploadImage(it) { success, imageUrl ->
@@ -150,9 +149,11 @@ class ProfileFragment : Fragment() {
                     }
                 }
             } ?: run {
-                activity?.runOnUiThread {
-                    viewModel.saveUserProfile(updatedUser)
-                    updateUIAfterProfileUpdate(newName, updatedUser.imageUrl)
+                if (isAdded && activity != null) {
+                    activity?.runOnUiThread {
+                        viewModel.saveUserProfile(updatedUser)
+                        updateUIAfterProfileUpdate(newName, updatedUser.imageUrl)
+                    }
                 }
             }
         }
@@ -184,8 +185,8 @@ class ProfileFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
-            selectedImageUri = data.data ?: return
-            Picasso.get().load(selectedImageUri).into(profileImageView)
+            profileImageUri = data.data ?: return
+            Picasso.get().load(profileImageUri).into(profileImageView)
         }
     }
 

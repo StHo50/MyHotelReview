@@ -37,6 +37,37 @@ class CommentRepository(context: Context) {
     suspend fun getCommentsForHotelSync(hotelId: Int): List<Comment> {
         return commentDao.getCommentsForHotelSync(hotelId)
     }
+
+    suspend fun updateComment(comment: Comment) {
+        withContext(Dispatchers.IO) {
+            commentDao.updateComment(comment)
+            firebaseRepository.updateCommentInFirestore(comment) { success ->
+                if (!success) {
+                    println("Failed to update comment in Firestore")
+                }
+            }
+        }
+    }
+
+    suspend fun deleteComment(comment: Comment) {
+        withContext(Dispatchers.IO) {
+            commentDao.deleteComment(comment)
+            firebaseRepository.deleteCommentFromFirestore(comment) { success ->
+                if (!success) {
+                    println("Failed to delete comment from Firestore")
+                }
+            }
+        }
+    }
+
+    suspend fun deleteAllComments() {
+        withContext(Dispatchers.IO) {
+            commentDao.deleteAllComments() // Delete all comments from Room
+            firebaseRepository.deleteAllCommentsFromFirestore() // Delete all comments from Firestore
+        }
+    }
+
+
 }
 
 

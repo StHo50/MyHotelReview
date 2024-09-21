@@ -140,12 +140,14 @@ class FirebaseRepository {
                 "prePayment" to hotel.prePayment,
                 "breakfast" to hotel.breakfast
             )
-            firestore.collection("Hotels").add(hotelData).await()
+            // Use the hotel id as the Firestore document id
+            firestore.collection("Hotels").document(hotel.id.toString()).set(hotelData).await()
             true
         } catch (e: Exception) {
             false
         }
     }
+
 
     fun insertCommentToFirestore(comment: Comment, onComplete: (Boolean) -> Unit) {
         val commentData = hashMapOf(
@@ -162,6 +164,56 @@ class FirebaseRepository {
                 onComplete(task.isSuccessful)
             }
     }
+
+    fun updateCommentInFirestore(comment: Comment, onComplete: (Boolean) -> Unit) {
+        firestore.collection("Comments")
+            .whereEqualTo("hotelId", comment.hotelId)
+            .whereEqualTo("timestamp", comment.timestamp)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    // There should be exactly one comment with this hotelId and timestamp
+                    val document = querySnapshot.documents[0]
+                    firestore.collection("Comments")
+                        .document(document.id)
+                        .set(comment)
+                        .addOnCompleteListener { task ->
+                            onComplete(task.isSuccessful)
+                        }
+                } else {
+                    onComplete(false)
+                }
+            }
+            .addOnFailureListener {
+                onComplete(false)
+            }
+    }
+
+
+    fun deleteCommentFromFirestore(comment: Comment, onComplete: (Boolean) -> Unit) {
+        firestore.collection("Comments")
+            .whereEqualTo("hotelId", comment.hotelId)
+            .whereEqualTo("timestamp", comment.timestamp)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    // There should be exactly one comment with this hotelId and timestamp
+                    val document = querySnapshot.documents[0]
+                    firestore.collection("Comments")
+                        .document(document.id)
+                        .delete()
+                        .addOnCompleteListener { task ->
+                            onComplete(task.isSuccessful)
+                        }
+                } else {
+                    onComplete(false)
+                }
+            }
+            .addOnFailureListener {
+                onComplete(false)
+            }
+    }
+
 
     fun getCommentsForHotel(hotelId: Int, onComplete: (List<Comment>?) -> Unit) {
         firestore.collection("Comments")
@@ -184,6 +236,21 @@ class FirebaseRepository {
             .addOnFailureListener {
                 onComplete(null)
             }
+    }
+
+    suspend fun deleteAllHotelsFromFirestore() {
+        val hotels = firestore.collection("Hotels").get().await()
+        for (hotel in hotels) {
+            firestore.collection("Hotels").document(hotel.id).delete().await()
+        }
+    }
+
+    // Function to delete all comments from Firestore
+    suspend fun deleteAllCommentsFromFirestore() {
+        val comments = firestore.collection("Comments").get().await()
+        for (comment in comments) {
+            firestore.collection("Comments").document(comment.id).delete().await()
+        }
     }
 
 }

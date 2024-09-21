@@ -1,6 +1,7 @@
 package com.example.myhotelreview.view
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
@@ -34,9 +35,10 @@ class HotelDetailFragment : Fragment() {
 
     private val hotelViewModel: HotelViewModel by viewModels()
     private lateinit var commentAdapter: CommentAdapter
-    private var selectedImageUri: Uri? = null
+    private var commentImageUri: Uri? = null
     private val imgurService = ImgurAPIservice()
     private var isCommentSubmitting = false
+    private var editingComment: Comment? = null // To track the comment being edited
 
     companion object {
         private const val PICK_IMAGE_REQUEST = 1
@@ -64,19 +66,31 @@ class HotelDetailFragment : Fragment() {
         val hotelId = arguments?.let {
             HotelDetailFragmentArgs.fromBundle(it).hotelId
         }
+        println("Current hotelId: $hotelId")
+
         val rvComments = view.findViewById<RecyclerView>(R.id.rvComments)
         val etComment = view.findViewById<EditText>(R.id.etComment)
         val btnSubmitComment = view.findViewById<Button>(R.id.btnSubmitComment)
         val btnSelectImage = view.findViewById<Button>(R.id.btnSelectImage)
         val ivSelectedImage = view.findViewById<ImageView>(R.id.ivSelectedImage)
 
-        commentAdapter = CommentAdapter(emptyList())
+        val currentUserId = hotelViewModel.getCurrentUserId()
+
+        commentAdapter = CommentAdapter(emptyList(), currentUserId, { comment ->
+            editComment(comment)
+        }, { comment ->
+
+            deleteComment(comment)
+        })
+
+
         rvComments.layoutManager = LinearLayoutManager(context)
         rvComments.adapter = commentAdapter
 
         if (hotelId != null) {
             hotelViewModel.getHotelById(hotelId).observe(viewLifecycleOwner, Observer { hotel ->
                 if (hotel != null) {
+                    println("Hotel loaded with ID: ${hotel.id}")
                     view.findViewById<TextView>(R.id.tvHotelName).text = hotel.name
                     view.findViewById<TextView>(R.id.tvHotelDescription).text = hotel.description
                     view.findViewById<TextView>(R.id.tvHotelLocation).text = getString(R.string.label_location, hotel.location)
@@ -101,7 +115,7 @@ class HotelDetailFragment : Fragment() {
                 }
             })
             hotelViewModel.getCommentsForHotel(hotelId).observe(viewLifecycleOwner, Observer { comments ->
-                println("Comments observed in UI: $comments")
+                println("Comments observed for hotelId $hotelId: $comments")
                 commentAdapter.updateComments(comments)
             })
         } else {
@@ -120,15 +134,18 @@ class HotelDetailFragment : Fragment() {
 
                 val userId = hotelViewModel.getCurrentUserId()
 
-                // Fetch the user name
                 hotelViewModel.getCurrentUserName { userName ->
-                    // Handle image upload if image is selected
-                    selectedImageUri?.let { uri ->
+
+                    commentImageUri?.let { uri ->
                         val imageFile = convertUriToFile(uri)
                         imageFile?.let {
                             imgurService.uploadImage(it) { success, imageUrl ->
                                 if (success && imageUrl != null) {
-                                    submitComment(hotelId ?: 0, userId, userName, commentText, imageUrl)
+                                    if (isAdded && activity != null) {
+                                        activity?.runOnUiThread {
+                                            submitComment(hotelId ?: 0, userId, userName, commentText, imageUrl)
+                                        }
+                                    }
                                 } else {
                                     showError("Image upload failed.")
                                     isCommentSubmitting = false
@@ -136,8 +153,11 @@ class HotelDetailFragment : Fragment() {
                             }
                         }
                     } ?: run {
-                        // Submit comment without an image
-                        submitComment(hotelId ?: 0, userId, userName, commentText, null)
+                        if (isAdded && activity != null) {
+                            activity?.runOnUiThread {
+                                submitComment(hotelId ?: 0, userId, userName, commentText, null)
+                            }
+                        }
                     }
                 }
             } else {
@@ -148,9 +168,11 @@ class HotelDetailFragment : Fragment() {
         view.findViewById<ImageButton>(R.id.btnBack).setOnClickListener {
             requireActivity().onBackPressed()
         }
+
     }
 
     private fun submitComment(hotelId: Int, userId: String, userName: String, text: String, imageUrl: String?) {
+        println("Submitting comment for hotelId: $hotelId")
         val comment = Comment(
             hotelId = hotelId,
             userId = userId,
@@ -164,10 +186,51 @@ class HotelDetailFragment : Fragment() {
 
         requireActivity().runOnUiThread {
             view?.findViewById<EditText>(R.id.etComment)?.text?.clear()
-            selectedImageUri = null
+            commentImageUri = null
             isCommentSubmitting = false
             showError("Comment submitted successfully.")
         }
+    }
+
+    private fun editComment(comment: Comment) {
+        // AlertDialog for editing the comment
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Edit Comment")
+
+        // EditText for the user to modify the comment
+        val input = EditText(requireContext())
+        input.setText(comment.text)
+        builder.setView(input)
+
+        builder.setPositiveButton("Save") { dialog, _ ->
+            val updatedText = input.text.toString()
+
+            if (updatedText.isNotEmpty()) {
+                val updatedComment = comment.copy(text = updatedText)
+
+                // Call the ViewModel to update the comment
+                hotelViewModel.updateComment(updatedComment)
+
+                Toast.makeText(requireContext(), "Comment updated", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "Comment cannot be empty", Toast.LENGTH_SHORT).show()
+            }
+            dialog.dismiss()
+        }
+
+        // Set the Cancel button
+        builder.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.dismiss() // Dismiss the dialog without changes
+        }
+
+        // Show the dialog
+        builder.show()
+    }
+
+
+    private fun deleteComment(comment: Comment) {
+        hotelViewModel.deleteComment(comment)
+        Toast.makeText(requireContext(), "Comment deleted", Toast.LENGTH_SHORT).show()
     }
 
 
@@ -182,9 +245,9 @@ class HotelDetailFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
-            selectedImageUri = data.data ?: return
+            commentImageUri = data.data ?: return
             val ivSelectedImage = view?.findViewById<ImageView>(R.id.ivSelectedImage)
-            Picasso.get().load(selectedImageUri).into(ivSelectedImage)
+            Picasso.get().load(commentImageUri).into(ivSelectedImage)
             ivSelectedImage?.visibility = View.VISIBLE
         }
     }

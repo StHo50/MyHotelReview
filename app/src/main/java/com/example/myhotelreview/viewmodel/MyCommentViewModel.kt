@@ -30,8 +30,20 @@ class MyCommentsViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
+    fun updateComment(comment: Comment) {
+        viewModelScope.launch {
+            commentRepository.updateComment(comment)
+        }
+    }
 
-    private fun getCurrentUserId(): String? {
+    fun deleteComment(comment: Comment) {
+        viewModelScope.launch {
+            commentRepository.deleteComment(comment)
+        }
+    }
+
+
+    fun getCurrentUserId(): String? {
         val currentUser = FirebaseAuth.getInstance().currentUser
         return currentUser?.uid
     }

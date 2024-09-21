@@ -46,6 +46,9 @@ class HotelsFragment : Fragment() {
         // The function below inserts the dummy hotels data, we need to activate it only once in order to not get duplicated data every run, that's why it's a comment.
         // hotelViewModel.insertDummyHotels()
 
+        // Call this function once to reset hotels and comments, then comment it out after first use.
+        //hotelViewModel.resetHotelsAndComments()
+
         hotelViewModel.fetchHotels()
 
         hotelViewModel.hotels.observe(viewLifecycleOwner, Observer { hotels ->

@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("com.google.gms.google-services")
     id("kotlin-kapt")
-    id("androidx.navigation.safeargs")
+    id("androidx.navigation.safeargs.kotlin")
 
 }
 
@@ -73,4 +73,5 @@ dependencies {
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1")
     implementation ("androidx.navigation:navigation-ui-ktx")
     implementation ("com.squareup.okhttp3:okhttp:4.9.2")
+    implementation ("androidx.navigation:navigation-fragment-ktx")
 }

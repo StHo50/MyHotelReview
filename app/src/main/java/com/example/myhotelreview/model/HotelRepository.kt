@@ -9,10 +9,13 @@ class HotelRepository(context: Context) {
 
     private val hotelDao: HotelDao
     private val firebaseRepository = FirebaseRepository()
+    private val commentRepository: CommentRepository
 
     init {
         val database = HotelDatabase.getDatabase(context)
         hotelDao = database.hotelDao()
+        commentRepository = CommentRepository(context)
+
     }
 
     suspend fun syncHotelsWithFirestore(): Boolean {
@@ -43,6 +46,19 @@ class HotelRepository(context: Context) {
 
     suspend fun deleteAllHotels() {
         hotelDao.deleteAllHotels()
+    }
+
+    suspend fun deleteAllHotelsAndComments() {
+        withContext(Dispatchers.IO) {
+            // Delete all hotels from Room
+            deleteAllHotels()
+
+            // Delete all hotels from Firestore
+            firebaseRepository.deleteAllHotelsFromFirestore()
+
+            // Delete all comments associated with hotels from Room and Firestore
+            commentRepository.deleteAllComments()
+        }
     }
 
     fun getHotelById(id: Int): LiveData<Hotel> {

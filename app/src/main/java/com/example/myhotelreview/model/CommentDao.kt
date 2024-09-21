@@ -2,9 +2,11 @@ package com.example.myhotelreview.model
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface CommentDao {
@@ -19,5 +21,14 @@ interface CommentDao {
 
     @Query("SELECT * FROM comments WHERE hotelId = :hotelId ORDER BY timestamp DESC")
     suspend fun getCommentsForHotelSync(hotelId: Int): List<Comment>
+
+    @Query("DELETE FROM comments")
+    suspend fun deleteAllComments()
+
+    @Update
+    suspend fun updateComment(comment: Comment)
+
+    @Delete
+    suspend fun deleteComment(comment: Comment)
 }
 

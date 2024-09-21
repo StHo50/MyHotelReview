@@ -18,6 +18,7 @@
         android:layout_height="200dp"
         android:scaleType="centerCrop"
         android:visibility="gone" />
+
     <TextView
         android:id="@+id/tvCommentDate"
         android:layout_width="wrap_content"
@@ -25,4 +26,28 @@
         android:text="Date"
         android:padding="4dp"
         android:textSize="12sp"/>
+
+    <!-- Edit and Delete Buttons for authenticated user -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="end">
+
+        <ImageButton
+            android:id="@+id/btnEditComment"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="?attr/selectableItemBackground"
+            android:src="@drawable/edit_24px"
+            android:visibility="gone"/>
+
+        <ImageButton
+            android:id="@+id/btnDeleteComment"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="?attr/selectableItemBackground"
+            android:src="@drawable/delete_24px"
+            android:visibility="gone"/>
+    </LinearLayout>
 </LinearLayout>
