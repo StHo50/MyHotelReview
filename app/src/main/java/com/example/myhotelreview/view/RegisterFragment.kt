@@ -7,15 +7,14 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
-import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import com.example.myhotelreview.R
 import com.example.myhotelreview.viewmodel.RegisterViewModel
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
-
 
 class RegisterFragment : Fragment() {
 
@@ -35,18 +34,18 @@ class RegisterFragment : Fragment() {
 
         navController = findNavController()
 
-        val etEmail = view.findViewById<EditText>(R.id.etEmail)
-        val etPassword = view.findViewById<EditText>(R.id.etPassword)
-        val etConfirmPassword = view.findViewById<EditText>(R.id.etConfirmPassword)
-        val etName = view.findViewById<EditText>(R.id.etName)
-        val btnRegister = view.findViewById<Button>(R.id.btnRegister)
+        val etEmail = view.findViewById<TextInputEditText>(R.id.etEmail)
+        val etPassword = view.findViewById<TextInputEditText>(R.id.etPassword)
+        val etConfirmPassword = view.findViewById<TextInputEditText>(R.id.etConfirmPassword)
+        val etName = view.findViewById<TextInputEditText>(R.id.etName)
+        val btnRegister = view.findViewById<MaterialButton>(R.id.btnRegister)
         val tvLogin = view.findViewById<TextView>(R.id.tvLogin)
 
         btnRegister.setOnClickListener {
-            val email = etEmail.text.toString()
-            val password = etPassword.text.toString()
-            val confirmPassword = etConfirmPassword.text.toString()
-            val name = etName.text.toString()
+            val email = etEmail.text.toString().trim()
+            val password = etPassword.text.toString().trim()
+            val confirmPassword = etConfirmPassword.text.toString().trim()
+            val name = etName.text.toString().trim()
 
             if (password == confirmPassword) {
                 registerViewModel.register(email, password, name, requireContext()) { success ->

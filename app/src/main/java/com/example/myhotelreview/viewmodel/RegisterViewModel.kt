@@ -20,6 +20,9 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
         if (email.isEmpty() || password.isEmpty() || name.isEmpty()) {
             Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             callback(false)
+        } else if (!isValidEmail(email)) {
+            Toast.makeText(context, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
+            callback(false)
         } else if (!isValidPassword(password)) {
             showPasswordGuidelinesDialog(context)
             callback(false)
@@ -29,13 +32,11 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                     val userId = firebaseRepository.getCurrentUserId()
                     if (userId != null) {
                         val user = User(id = userId, name = name, email = email)
-
                         // Save user data in Room locally
                         viewModelScope.launch {
                             userRepository.insertUser(user)
                         }
                     }
-
                     Toast.makeText(context, "Registration Successful", Toast.LENGTH_SHORT).show()
                     callback(true)
                 } else {
@@ -46,6 +47,9 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    private fun isValidEmail(email: String): Boolean {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    }
 
     private fun isValidPassword(password: String): Boolean {
         val passwordPattern = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@\$!%*?&])[A-Za-z\\d@\$!%*?&]{6,}$")

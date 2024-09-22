@@ -74,4 +74,5 @@ dependencies {
     implementation ("androidx.navigation:navigation-ui-ktx")
     implementation ("com.squareup.okhttp3:okhttp:4.9.2")
     implementation ("androidx.navigation:navigation-fragment-ktx")
+    implementation ("com.google.android.material:material")
 }
