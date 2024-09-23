@@ -1,6 +1,8 @@
 package com.example.myhotelreview.service
 
 
+import android.os.Handler
+import android.os.Looper
 import okhttp3.*
 import java.io.File
 import java.io.IOException
@@ -27,7 +29,9 @@ class ImgurAPIservice {
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                callback(false, null)
+                Handler(Looper.getMainLooper()).post {
+                    callback(false, null)
+                }
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -35,9 +39,13 @@ class ImgurAPIservice {
                     if (res.isSuccessful) {
                         val responseData = res.body?.string()
                         val imageUrl = extractImageUrl(responseData)
-                        callback(true, imageUrl)
+                        Handler(Looper.getMainLooper()).post {
+                            callback(true, imageUrl)
+                        }
                     } else {
-                        callback(false, null)
+                        Handler(Looper.getMainLooper()).post {
+                            callback(false, null)
+                        }
                     }
                 }
             }

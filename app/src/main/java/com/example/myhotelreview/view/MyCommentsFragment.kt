@@ -1,12 +1,18 @@
 package com.example.myhotelreview.view
 
+import android.app.Activity
 import android.app.AlertDialog
+import android.content.ContentResolver
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -20,6 +26,11 @@ import com.example.myhotelreview.model.Comment
 import com.example.myhotelreview.utils.hideLoadingOverlay
 import com.example.myhotelreview.utils.showLoadingOverlay
 import com.example.myhotelreview.viewmodel.MyCommentsViewModel
+import com.squareup.picasso.Picasso
+import com.example.myhotelreview.service.ImgurAPIservice
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 
 
 class MyCommentsFragment : Fragment() {
@@ -27,6 +38,13 @@ class MyCommentsFragment : Fragment() {
     private val viewModel: MyCommentsViewModel by viewModels()
     private lateinit var commentAdapter: CommentAdapter
     private var currentUserId: String? = null
+    private var commentImageUri: Uri? = null
+    private var onImageSelected: ((Uri) -> Unit)? = null
+    private val imgurService = ImgurAPIservice()
+
+    companion object {
+        private const val PICK_IMAGE_REQUEST = 1
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,27 +61,22 @@ class MyCommentsFragment : Fragment() {
 
         currentUserId = viewModel.getCurrentUserId()
 
-        // Initialize the CommentAdapter with the necessary callbacks
         commentAdapter = CommentAdapter(
             emptyList(),
             currentUserId = currentUserId ?: "",
             onEditClick = { comment ->
-                // Handle edit comment logic here
                 showEditCommentDialog(comment)
             },
             onDeleteClick = { comment ->
-                // Handle delete comment logic here
                 viewModel.deleteComment(comment)
             }
         )
         rvMyComments.adapter = commentAdapter
 
-        // Observe the comments and update the RecyclerView
         viewModel.getCommentsForUser().observe(viewLifecycleOwner, { comments ->
             commentAdapter.updateComments(comments)
         })
 
-        // Observe the loading state and show/hide the spinner accordingly
         viewModel.isLoading.observe(viewLifecycleOwner, { isLoading ->
             if (isLoading) {
                 view.findViewById<View>(R.id.loading_overlay)?.showLoadingOverlay()
@@ -73,45 +86,105 @@ class MyCommentsFragment : Fragment() {
         })
     }
 
-    // Function to handle showing the edit dialog
     private fun showEditCommentDialog(comment: Comment) {
-        // Create an AlertDialog builder
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Edit Comment")
 
-        // Create an EditText to display the existing comment text
-        val input = EditText(requireContext())
-        input.setText(comment.text)  // Set the current comment text in the EditText
-        builder.setView(input)  // Add the EditText to the dialog
+        val dialogLayout = LinearLayout(requireContext())
+        dialogLayout.orientation = LinearLayout.VERTICAL
 
-        // Set up the Save button
+        val input = EditText(requireContext())
+        input.setText(comment.text)
+        dialogLayout.addView(input)
+
+        val imageView = ImageView(requireContext())
+        if (!comment.imageUrl.isNullOrEmpty()) {
+            Picasso.get().load(comment.imageUrl).into(imageView)
+        }
+        dialogLayout.addView(imageView)
+
+        val btnSelectImage = Button(requireContext())
+        btnSelectImage.text = "Change Image"
+        dialogLayout.addView(btnSelectImage)
+
+        builder.setView(dialogLayout)
+
+        btnSelectImage.setOnClickListener {
+            pickImageForEdit { uri ->
+                commentImageUri = uri
+                Picasso.get().load(commentImageUri).into(imageView) // Update image in the dialog
+            }
+        }
+
         builder.setPositiveButton("Save") { dialog, _ ->
             val updatedText = input.text.toString()
-
-            // Check if the updated text is not empty
             if (updatedText.isNotEmpty()) {
-                // Update the comment with the new text
-                val updatedComment = comment.copy(text = updatedText)
-
-                // Call ViewModel to update the comment
-                viewModel.updateComment(updatedComment)
-
-                // Optionally, show a success message
-                Toast.makeText(requireContext(), "Comment updated", Toast.LENGTH_SHORT).show()
+                commentImageUri?.let { uri ->
+                    val imageFile = convertUriToFile(uri)
+                    imageFile?.let {
+                        imgurService.uploadImage(it) { success, imageUrl ->
+                            if (success && imageUrl != null) {
+                                val updatedComment = comment.copy(text = updatedText, imageUrl = imageUrl)
+                                viewModel.updateComment(updatedComment)
+                                showToast("Comment updated successfully")
+                            } else {
+                                showToast("Image upload failed.")
+                            }
+                        }
+                    }
+                } ?: run {
+                    val updatedComment = comment.copy(text = updatedText)
+                    viewModel.updateComment(updatedComment)
+                    showToast("Comment updated successfully")
+                }
             } else {
-                // Optionally, show an error message if the text is empty
-                Toast.makeText(requireContext(), "Comment cannot be empty", Toast.LENGTH_SHORT).show()
+                showToast("Comment cannot be empty")
             }
-
             dialog.dismiss()
         }
 
-        // Set up the Cancel button
         builder.setNegativeButton("Cancel") { dialog, _ ->
-            dialog.cancel()
+            dialog.dismiss()
         }
-
-        // Show the dialog
         builder.show()
+    }
+
+    private fun pickImageForEdit(onImageSelected: (Uri) -> Unit) {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "image/*"
+        startActivityForResult(intent, PICK_IMAGE_REQUEST)
+        this.onImageSelected = onImageSelected
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            val selectedImageUri = data.data
+            selectedImageUri?.let {
+                onImageSelected?.invoke(it)
+            }
+        }
+    }
+
+    private fun convertUriToFile(uri: Uri): File? {
+        val contentResolver: ContentResolver = requireContext().contentResolver
+        val tempFile = File.createTempFile("temp_image", ".jpg", requireContext().cacheDir)
+
+        return try {
+            val inputStream: InputStream? = contentResolver.openInputStream(uri)
+            val outputStream = FileOutputStream(tempFile)
+            inputStream?.copyTo(outputStream)
+            inputStream?.close()
+            outputStream.close()
+            tempFile
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 }

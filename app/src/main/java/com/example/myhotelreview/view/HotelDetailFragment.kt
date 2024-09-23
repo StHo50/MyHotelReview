@@ -14,6 +14,7 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -83,7 +84,6 @@ class HotelDetailFragment : Fragment() {
             deleteComment(comment)
         })
 
-
         rvComments.layoutManager = LinearLayoutManager(context)
         rvComments.adapter = commentAdapter
 
@@ -111,7 +111,7 @@ class HotelDetailFragment : Fragment() {
                         view.findViewById<TextView>(R.id.tvBreakfastIncluded).visibility = View.VISIBLE
                     }
                 } else {
-                    showError("Hotel details not found.")
+                    showToast("Hotel details not found.")
                 }
             })
             hotelViewModel.getCommentsForHotel(hotelId).observe(viewLifecycleOwner, Observer { comments ->
@@ -119,13 +119,16 @@ class HotelDetailFragment : Fragment() {
                 commentAdapter.updateComments(comments)
             })
         } else {
-            showError("Invalid hotel ID.")
+            showToast("Invalid hotel ID.")
         }
 
         btnSelectImage.setOnClickListener {
-            pickImage()
+            pickImage { uri ->
+                commentImageUri = uri
+                Picasso.get().load(commentImageUri).into(ivSelectedImage) // Update image preview
+                ivSelectedImage.visibility = View.VISIBLE // Ensure the image is visible
+            }
         }
-
         btnSubmitComment.setOnClickListener {
             val commentText = etComment.text.toString()
 
@@ -147,7 +150,7 @@ class HotelDetailFragment : Fragment() {
                                         }
                                     }
                                 } else {
-                                    showError("Image upload failed.")
+                                    showToast("Image upload failed.")
                                     isCommentSubmitting = false
                                 }
                             }
@@ -161,7 +164,7 @@ class HotelDetailFragment : Fragment() {
                     }
                 }
             } else {
-                showError("Comment cannot be empty.")
+                showToast("Comment cannot be empty.")
             }
         }
 
@@ -185,70 +188,116 @@ class HotelDetailFragment : Fragment() {
         hotelViewModel.addComment(comment)
 
         requireActivity().runOnUiThread {
+            // Clearing the text input
             view?.findViewById<EditText>(R.id.etComment)?.text?.clear()
+
+            // Clearing and hiding the image preview
             commentImageUri = null
+            val ivSelectedImage = view?.findViewById<ImageView>(R.id.ivSelectedImage)
+            ivSelectedImage?.setImageDrawable(null)
+            ivSelectedImage?.visibility = View.GONE
+
             isCommentSubmitting = false
-            showError("Comment submitted successfully.")
+
+            showToast("Comment submitted successfully.")
         }
     }
 
     private fun editComment(comment: Comment) {
-        // AlertDialog for editing the comment
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Edit Comment")
 
-        // EditText for the user to modify the comment
+        val dialogLayout = LinearLayout(requireContext())
+        dialogLayout.orientation = LinearLayout.VERTICAL
+
         val input = EditText(requireContext())
         input.setText(comment.text)
-        builder.setView(input)
+        dialogLayout.addView(input)
+
+        val imageView = ImageView(requireContext())
+        if (!comment.imageUrl.isNullOrEmpty()) {
+            Picasso.get().load(comment.imageUrl).into(imageView)
+        }
+        dialogLayout.addView(imageView)
+
+        val btnSelectImage = Button(requireContext())
+        btnSelectImage.text = "Change Image"
+        dialogLayout.addView(btnSelectImage)
+
+        builder.setView(dialogLayout)
+
+        btnSelectImage.setOnClickListener {
+            // Triggering image picker and update the ImageView when a new image is selected
+            pickImageForEdit { uri ->
+                commentImageUri = uri
+                Picasso.get().load(commentImageUri).into(imageView)
+            }
+        }
 
         builder.setPositiveButton("Save") { dialog, _ ->
             val updatedText = input.text.toString()
-
             if (updatedText.isNotEmpty()) {
-                val updatedComment = comment.copy(text = updatedText)
-
-                // Call the ViewModel to update the comment
-                hotelViewModel.updateComment(updatedComment)
-
-                Toast.makeText(requireContext(), "Comment updated", Toast.LENGTH_SHORT).show()
+                commentImageUri?.let { uri ->
+                    val imageFile = convertUriToFile(uri)
+                    imageFile?.let {
+                        imgurService.uploadImage(it) { success, imageUrl ->
+                            if (success && imageUrl != null) {
+                                val updatedComment = comment.copy(text = updatedText, imageUrl = imageUrl)
+                                hotelViewModel.updateComment(updatedComment)
+                                showToast("Comment updated successfully")
+                            } else {
+                                showToast("Image upload failed.")
+                            }
+                        }
+                    }
+                } ?: run {
+                    val updatedComment = comment.copy(text = updatedText)
+                    hotelViewModel.updateComment(updatedComment)
+                    showToast("Comment updated successfully")
+                }
             } else {
-                Toast.makeText(requireContext(), "Comment cannot be empty", Toast.LENGTH_SHORT).show()
+                showToast("Comment cannot be empty")
             }
             dialog.dismiss()
         }
 
-        // Set the Cancel button
         builder.setNegativeButton("Cancel") { dialog, _ ->
-            dialog.dismiss() // Dismiss the dialog without changes
+            dialog.dismiss()
         }
 
-        // Show the dialog
         builder.show()
     }
-
 
     private fun deleteComment(comment: Comment) {
         hotelViewModel.deleteComment(comment)
         Toast.makeText(requireContext(), "Comment deleted", Toast.LENGTH_SHORT).show()
     }
 
-
-    private fun pickImage() {
+    private fun pickImage(onImageSelected: (Uri) -> Unit) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.type = "image/*"
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
+        this.onImageSelected = onImageSelected
     }
 
+    private fun pickImageForEdit(onImageSelected: (Uri) -> Unit) {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "image/*"
+        startActivityForResult(intent, PICK_IMAGE_REQUEST)
+        this.onImageSelected = onImageSelected
+    }
+
+    private var onImageSelected: ((Uri) -> Unit)? = null
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
-            commentImageUri = data.data ?: return
-            val ivSelectedImage = view?.findViewById<ImageView>(R.id.ivSelectedImage)
-            Picasso.get().load(commentImageUri).into(ivSelectedImage)
-            ivSelectedImage?.visibility = View.VISIBLE
+            val selectedImageUri = data.data
+            selectedImageUri?.let {
+                onImageSelected?.invoke(it)
+            }
         }
     }
 
@@ -269,10 +318,8 @@ class HotelDetailFragment : Fragment() {
         }
     }
 
-
-    private fun showError(message: String) {
+    private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
-
 
 }
