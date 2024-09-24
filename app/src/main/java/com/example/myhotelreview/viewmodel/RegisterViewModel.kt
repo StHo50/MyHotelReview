@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myhotelreview.model.FirebaseRepository
 import com.example.myhotelreview.model.User

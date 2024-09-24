@@ -1,53 +1,109 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:layout_margin="8dp"
+    app:cardElevation="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardBackgroundColor="#F3E5F5"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/tvCommentText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="User Comment"
-        android:textSize="16sp"
-        android:textStyle="bold" />
-
-    <ImageView
-        android:id="@+id/ivCommentImage"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:scaleType="centerCrop"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/tvCommentDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Date"
-        android:padding="4dp"
-        android:textSize="12sp"/>
-
-    <!-- Edit and Delete Buttons for authenticated user -->
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_gravity="end">
+        android:gravity="center_vertical">
 
-        <ImageButton
-            android:id="@+id/btnEditComment"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:background="?attr/selectableItemBackground"
-            android:src="@drawable/edit_24px"
-            android:visibility="gone"/>
+        <LinearLayout
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp">
 
-        <ImageButton
-            android:id="@+id/btnDeleteComment"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:background="?attr/selectableItemBackground"
-            android:src="@drawable/delete_24px"
-            android:visibility="gone"/>
+            <ImageView
+                android:id="@+id/ivProfileImage"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/default_profile_image"
+                app:cornerRadius="24dp" />
+
+            <TextView
+                android:id="@+id/tvUserName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="User Name"
+                android:textSize="12sp"
+                android:textColor="@android:color/black"
+                android:layout_gravity="center_horizontal"
+                android:paddingTop="4dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvCommentText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Comment Text"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:paddingBottom="8dp"
+                android:paddingTop="4dp"/>
+
+            <ImageView
+                android:id="@+id/ivCommentImage"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tvCommentDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date"
+                android:textSize="12sp"
+                android:textColor="#2f4f4f"
+                android:paddingBottom="8dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_gravity="center_vertical">
+
+            <ImageButton
+                android:id="@+id/btnEditComment"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="?attr/selectableItemBackground"
+                android:src="@drawable/edit_24px"
+                app:tint="@android:color/black"
+                android:visibility="gone"/>
+
+            <ImageButton
+                android:id="@+id/btnDeleteComment"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="?attr/selectableItemBackground"
+                android:src="@drawable/delete_24px"
+                app:tint="@android:color/black"
+                android:visibility="gone"/>
+        </LinearLayout>
+
     </LinearLayout>
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

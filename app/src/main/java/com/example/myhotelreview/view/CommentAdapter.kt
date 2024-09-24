@@ -11,14 +11,21 @@ import com.example.myhotelreview.R
 import com.example.myhotelreview.databinding.ItemHotelBinding
 import com.example.myhotelreview.model.Comment
 import com.example.myhotelreview.model.Hotel
+import com.example.myhotelreview.model.UserRepository
 import com.squareup.picasso.Picasso
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.Date
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CommentAdapter(
     private var comments: List<Comment>,
     private val currentUserId: String,
+    private val userRepository: UserRepository,
+    private val coroutineScope: CoroutineScope,
     private val onEditClick: (Comment) -> Unit,
     private val onDeleteClick: (Comment) -> Unit
 ) : RecyclerView.Adapter<CommentAdapter.CommentViewHolder>() {
@@ -41,13 +48,32 @@ class CommentAdapter(
 
     inner class CommentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(comment: Comment) {
+            val ivProfileImage = itemView.findViewById<ImageView>(R.id.ivProfileImage)
+            val tvUserName = itemView.findViewById<TextView>(R.id.tvUserName)
             val tvComment = itemView.findViewById<TextView>(R.id.tvCommentText)
             val ivCommentImage = itemView.findViewById<ImageView>(R.id.ivCommentImage)
             val tvCommentDate = itemView.findViewById<TextView>(R.id.tvCommentDate)
             val btnEditComment = itemView.findViewById<ImageButton>(R.id.btnEditComment)
             val btnDeleteComment = itemView.findViewById<ImageButton>(R.id.btnDeleteComment)
 
-            tvComment.text = "${comment.userName}: ${comment.text}"
+            // Set comment text without the user name
+            tvComment.text = comment.text
+
+            // Fetch user information asynchronously
+            coroutineScope.launch {
+                val user = userRepository.getUserById(comment.userId)
+                withContext(Dispatchers.Main) {
+                    user?.let {
+                        tvUserName.text = it.name
+                        val profileImageUrl = it.imageUrl
+                        if (!profileImageUrl.isNullOrEmpty()) {
+                            Picasso.get().load(profileImageUrl).placeholder(R.drawable.default_profile_image).into(ivProfileImage)
+                        } else {
+                            ivProfileImage.setImageResource(R.drawable.default_profile_image)
+                        }
+                    }
+                }
+            }
 
             if (comment.imageUrl != null) {
                 ivCommentImage.visibility = View.VISIBLE
@@ -65,12 +91,10 @@ class CommentAdapter(
                 btnEditComment.visibility = View.VISIBLE
                 btnDeleteComment.visibility = View.VISIBLE
 
-                // Handle edit button click
                 btnEditComment.setOnClickListener {
                     onEditClick(comment)
                 }
 
-                // Handle delete button click
                 btnDeleteComment.setOnClickListener {
                     onDeleteClick(comment)
                 }

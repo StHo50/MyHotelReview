@@ -20,13 +20,18 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myhotelreview.R
 import com.example.myhotelreview.model.Comment
+import com.example.myhotelreview.model.UserRepository
 import com.example.myhotelreview.service.ImgurAPIservice
 import com.example.myhotelreview.viewmodel.HotelViewModel
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.squareup.picasso.Picasso
 import java.io.File
 import java.io.FileOutputStream
@@ -40,7 +45,7 @@ class HotelDetailFragment : Fragment() {
     private val imgurService = ImgurAPIservice()
     private var isCommentSubmitting = false
     private var editingComment: Comment? = null // To track the comment being edited
-
+    private lateinit var userRepository: UserRepository
     companion object {
         private const val PICK_IMAGE_REQUEST = 1
     }
@@ -53,6 +58,8 @@ class HotelDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        userRepository = UserRepository(requireContext())
 
         val loadingOverlay = view.findViewById<FrameLayout>(R.id.loading_overlay)
 
@@ -70,19 +77,20 @@ class HotelDetailFragment : Fragment() {
         println("Current hotelId: $hotelId")
 
         val rvComments = view.findViewById<RecyclerView>(R.id.rvComments)
-        val etComment = view.findViewById<EditText>(R.id.etComment)
-        val btnSubmitComment = view.findViewById<Button>(R.id.btnSubmitComment)
-        val btnSelectImage = view.findViewById<Button>(R.id.btnSelectImage)
+        val etComment = view.findViewById<TextInputEditText>(R.id.etComment)
+        val btnSubmitComment = view.findViewById<MaterialButton>(R.id.btnSubmitComment)
+        val etCommentLayout = view.findViewById<TextInputLayout>(R.id.etCommentLayout)
         val ivSelectedImage = view.findViewById<ImageView>(R.id.ivSelectedImage)
-
         val currentUserId = hotelViewModel.getCurrentUserId()
 
-        commentAdapter = CommentAdapter(emptyList(), currentUserId, { comment ->
-            editComment(comment)
-        }, { comment ->
-
-            deleteComment(comment)
-        })
+        commentAdapter = CommentAdapter(
+            emptyList(),
+            currentUserId,
+            userRepository,
+            viewLifecycleOwner.lifecycleScope,
+            { comment -> editComment(comment) },
+            { comment -> deleteComment(comment) }
+        )
 
         rvComments.layoutManager = LinearLayoutManager(context)
         rvComments.adapter = commentAdapter
@@ -122,7 +130,7 @@ class HotelDetailFragment : Fragment() {
             showToast("Invalid hotel ID.")
         }
 
-        btnSelectImage.setOnClickListener {
+        etCommentLayout.setEndIconOnClickListener {
             pickImage { uri ->
                 commentImageUri = uri
                 Picasso.get().load(commentImageUri).into(ivSelectedImage) // Update image preview
@@ -167,11 +175,6 @@ class HotelDetailFragment : Fragment() {
                 showToast("Comment cannot be empty.")
             }
         }
-
-        view.findViewById<ImageButton>(R.id.btnBack).setOnClickListener {
-            requireActivity().onBackPressed()
-        }
-
     }
 
     private fun submitComment(hotelId: Int, userId: String, userName: String, text: String, imageUrl: String?) {
@@ -189,7 +192,7 @@ class HotelDetailFragment : Fragment() {
 
         requireActivity().runOnUiThread {
             // Clearing the text input
-            view?.findViewById<EditText>(R.id.etComment)?.text?.clear()
+            view?.findViewById<TextInputEditText>(R.id.etComment)?.text?.clear()
 
             // Clearing and hiding the image preview
             commentImageUri = null
@@ -228,7 +231,7 @@ class HotelDetailFragment : Fragment() {
 
         btnSelectImage.setOnClickListener {
             // Triggering image picker and update the ImageView when a new image is selected
-            pickImageForEdit { uri ->
+            pickImage { uri ->
                 commentImageUri = uri
                 Picasso.get().load(commentImageUri).into(imageView)
             }
@@ -264,7 +267,6 @@ class HotelDetailFragment : Fragment() {
         builder.setNegativeButton("Cancel") { dialog, _ ->
             dialog.dismiss()
         }
-
         builder.show()
     }
 
@@ -274,14 +276,6 @@ class HotelDetailFragment : Fragment() {
     }
 
     private fun pickImage(onImageSelected: (Uri) -> Unit) {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-        intent.addCategory(Intent.CATEGORY_OPENABLE)
-        intent.type = "image/*"
-        startActivityForResult(intent, PICK_IMAGE_REQUEST)
-        this.onImageSelected = onImageSelected
-    }
-
-    private fun pickImageForEdit(onImageSelected: (Uri) -> Unit) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.type = "image/*"

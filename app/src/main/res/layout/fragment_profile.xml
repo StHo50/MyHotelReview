@@ -1,48 +1,70 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:gravity="center">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="My Profile"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_gravity="center"
+        android:layout_marginBottom="32dp" />
 
     <include layout="@layout/layout_loading_overlay" />
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/profile_imageview"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:src="@drawable/default_profile_image"
         android:contentDescription="Profile Image"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="center"
         android:clickable="true"
-        android:focusable="true" />
+        android:focusable="true"
+        app:shapeAppearanceOverlay="@style/CustomShapeAppearance.Circle"/>
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/user_name_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="User Name"
         android:textSize="18sp"
-        android:layout_gravity="center_horizontal" />
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp" />
 
-    <EditText
-        android:id="@+id/edit_name_edittext"
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:enabled="false"
-        android:hint="Edit Name"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="16dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_name_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name"
+            android:enabled="false"/>
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/edit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Edit"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center"
+        android:layout_marginTop="24dp"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/save_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Save"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:layout_marginTop="16dp"/>
 </LinearLayout>

@@ -17,12 +17,14 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.example.myhotelreview.R
 import com.example.myhotelreview.viewmodel.LoginViewModel
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myhotelreview.model.Comment
+import com.example.myhotelreview.model.UserRepository
 import com.example.myhotelreview.utils.hideLoadingOverlay
 import com.example.myhotelreview.utils.showLoadingOverlay
 import com.example.myhotelreview.viewmodel.MyCommentsViewModel
@@ -41,6 +43,7 @@ class MyCommentsFragment : Fragment() {
     private var commentImageUri: Uri? = null
     private var onImageSelected: ((Uri) -> Unit)? = null
     private val imgurService = ImgurAPIservice()
+    private lateinit var userRepository: UserRepository
 
     companion object {
         private const val PICK_IMAGE_REQUEST = 1
@@ -60,10 +63,14 @@ class MyCommentsFragment : Fragment() {
         rvMyComments.layoutManager = LinearLayoutManager(context)
 
         currentUserId = viewModel.getCurrentUserId()
+        userRepository = UserRepository(requireContext())
 
+        // Update the commentAdapter initialization to pass UserRepository and lifecycleScope
         commentAdapter = CommentAdapter(
             emptyList(),
             currentUserId = currentUserId ?: "",
+            userRepository = userRepository,  // Pass userRepository
+            coroutineScope = viewLifecycleOwner.lifecycleScope,  // Pass lifecycleScope
             onEditClick = { comment ->
                 showEditCommentDialog(comment)
             },
@@ -71,6 +78,7 @@ class MyCommentsFragment : Fragment() {
                 viewModel.deleteComment(comment)
             }
         )
+
         rvMyComments.adapter = commentAdapter
 
         viewModel.getCommentsForUser().observe(viewLifecycleOwner, { comments ->

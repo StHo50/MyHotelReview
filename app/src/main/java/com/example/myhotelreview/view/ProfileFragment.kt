@@ -5,7 +5,6 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,7 +37,6 @@ class ProfileFragment : Fragment() {
     private var currentUser: User? = null
     private val imgurService = ImgurAPIservice()
 
-
     companion object {
         private const val PICK_IMAGE_REQUEST = 1
     }
@@ -61,6 +59,9 @@ class ProfileFragment : Fragment() {
         editButton = view.findViewById(R.id.edit_button)
         saveButton = view.findViewById(R.id.save_button)
 
+        saveButton.visibility = View.GONE
+        removeImageClickListener()
+
         setupUserProfile()
 
         viewModel.isLoading.observe(viewLifecycleOwner, { isLoading ->
@@ -78,10 +79,6 @@ class ProfileFragment : Fragment() {
         saveButton.setOnClickListener {
             saveProfileChanges()
         }
-
-        profileImageView.setOnClickListener {
-            pickImage()
-        }
     }
 
     private fun setupUserProfile() {
@@ -94,7 +91,6 @@ class ProfileFragment : Fragment() {
                 val imageUrl = it.imageUrl
 
                 if (!imageUrl.isNullOrEmpty()) {
-
                     try {
                         Picasso.get().load(imageUrl).into(profileImageView)
                     } catch (e: Exception) {
@@ -112,6 +108,18 @@ class ProfileFragment : Fragment() {
         editNameEditText.isEnabled = true
         editButton.visibility = View.GONE
         saveButton.visibility = View.VISIBLE
+
+        addImageClickListener()
+    }
+
+    private fun removeImageClickListener() {
+        profileImageView.setOnClickListener(null)
+    }
+
+    private fun addImageClickListener() {
+        profileImageView.setOnClickListener {
+            pickImage()
+        }
     }
 
     private var isProfileUpdating = false
@@ -141,31 +149,35 @@ class ProfileFragment : Fragment() {
                             val updatedUserWithImage = updatedUser.copy(imageUrl = imageUrl)
                             activity?.runOnUiThread {
                                 viewModel.saveUserProfile(updatedUserWithImage)
-                                updateUIAfterProfileUpdate(newName, imageUrl)
+                                updateProfile(newName, imageUrl)
                             }
                         } else {
                             showError("Image upload failed")
                         }
                     }
+                } ?: run {
+                    showError("Image file conversion failed.")
+                    isProfileUpdating = false
                 }
             } ?: run {
-                if (isAdded && activity != null) {
-                    activity?.runOnUiThread {
-                        viewModel.saveUserProfile(updatedUser)
-                        updateUIAfterProfileUpdate(newName, updatedUser.imageUrl)
-                    }
+                activity?.runOnUiThread {
+                    viewModel.saveUserProfile(updatedUser)
+                    updateProfile(newName, updatedUser.imageUrl)
                 }
             }
         }
     }
 
-    private fun updateUIAfterProfileUpdate(newName: String, imageUrl: String?) {
+    private fun updateProfile(newName: String, imageUrl: String?) {
         userNameTextView.text = newName
         Picasso.get().load(imageUrl).into(profileImageView)
         Toast.makeText(requireContext(), "Profile updated", Toast.LENGTH_SHORT).show()
+
         editNameEditText.isEnabled = false
         editButton.visibility = View.VISIBLE
         saveButton.visibility = View.GONE
+        removeImageClickListener()
+
         isProfileUpdating = false
     }
 
@@ -173,7 +185,6 @@ class ProfileFragment : Fragment() {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
         isProfileUpdating = false
     }
-
 
     private fun pickImage() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
@@ -194,18 +205,17 @@ class ProfileFragment : Fragment() {
         val contentResolver: ContentResolver = requireContext().contentResolver
         val tempFile = File.createTempFile("temp_image", ".jpg", requireContext().cacheDir)
 
-        try {
+        return try {
             val inputStream: InputStream? = contentResolver.openInputStream(uri)
             val outputStream = FileOutputStream(tempFile)
             inputStream?.copyTo(outputStream)
             inputStream?.close()
             outputStream.close()
-
-            return tempFile
+            tempFile
         } catch (e: Exception) {
             e.printStackTrace()
-            return null
+            null
         }
     }
-
 }
+

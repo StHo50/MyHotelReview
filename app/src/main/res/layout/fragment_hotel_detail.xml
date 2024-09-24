@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -22,6 +23,7 @@
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:textSize="24sp"
+            android:textColor="@android:color/black"
             android:layout_marginTop="16dp" />
 
         <TextView
@@ -29,6 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="22sp"
+            android:textColor="@android:color/black"
             android:layout_marginTop="16dp" />
 
         <TextView
@@ -36,6 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="18sp"
+            android:textColor="#757575"
             android:layout_marginTop="18dp" />
 
         <TextView
@@ -43,6 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="18sp"
+            android:textColor="#757575"
             android:layout_marginTop="8dp" />
 
         <TextView
@@ -50,6 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="18sp"
+            android:textColor="#757575"
             android:layout_marginTop="8dp" />
 
         <TextView
@@ -58,6 +64,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Free Cancellation"
+            android:textColor="@android:color/holo_green_dark"
             android:visibility="gone" />
 
         <TextView
@@ -66,6 +73,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Prepayment Required"
+            android:textColor="@android:color/holo_red_dark"
             android:visibility="gone" />
 
         <TextView
@@ -74,14 +82,35 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Breakfast Included"
+            android:textColor="@android:color/holo_blue_dark"
             android:visibility="gone" />
 
-        <EditText
+        <TextView
+            android:id="@+id/tvCommentsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reviews"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="24dp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/etCommentLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:endIconDrawable="@drawable/photo_camera_24px"
+            app:endIconMode="custom">
+
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etComment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Write your comment"
-            android:layout_marginTop="16dp"/>
+            android:hint="Please add your review"
+            android:inputType="text"
+            android:maxLines="3"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <ImageView
             android:id="@+id/ivSelectedImage"
@@ -91,37 +120,22 @@
             android:scaleType="centerCrop"
             android:visibility="gone" />
 
-        <Button
-            android:id="@+id/btnSelectImage"
-            android:layout_width="145dp"
-            android:layout_height="36dp"
-            android:layout_marginTop="8dp"
-            android:text="Select Image" />
 
-
-        <!-- RecyclerView for displaying comments -->
-
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSubmitComment"
             android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:layout_marginTop="8dp"
-            android:text="Submit" />
+            android:layout_height="wrap_content"
+            android:text="Submit"
+            app:cornerRadius="16dp"
+            android:layout_marginTop="8dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvComments"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginTop="16dp"/>
-
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="85dp"
-            android:layout_height="63dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="@string/back_button"
-            android:src="@drawable/arrow_back_24px" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:paddingBottom="80dp"
+            android:clipToPadding="false" />
 
         <include layout="@layout/layout_loading_overlay" />
 
