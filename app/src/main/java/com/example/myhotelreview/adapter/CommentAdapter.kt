@@ -1,4 +1,4 @@
-package com.example.myhotelreview.view
+package com.example.myhotelreview.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -8,10 +8,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myhotelreview.R
-import com.example.myhotelreview.databinding.ItemHotelBinding
-import com.example.myhotelreview.model.Comment
-import com.example.myhotelreview.model.Hotel
-import com.example.myhotelreview.model.UserRepository
+import com.example.myhotelreview.model.comment.Comment
+import com.example.myhotelreview.repository.UserRepository
 import com.squareup.picasso.Picasso
 import java.text.SimpleDateFormat
 import java.util.Locale

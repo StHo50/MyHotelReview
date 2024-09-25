@@ -5,9 +5,9 @@ import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myhotelreview.model.FirebaseRepository
-import com.example.myhotelreview.model.User
-import com.example.myhotelreview.model.UserRepository
+import com.example.myhotelreview.repository.FirebaseRepository
+import com.example.myhotelreview.model.user.User
+import com.example.myhotelreview.repository.UserRepository
 import kotlinx.coroutines.launch
 
 class RegisterViewModel(application: Application) : AndroidViewModel(application) {

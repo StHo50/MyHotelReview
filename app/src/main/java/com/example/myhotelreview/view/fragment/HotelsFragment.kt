@@ -1,10 +1,9 @@
-package com.example.myhotelreview.view
+package com.example.myhotelreview.view.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -13,6 +12,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.myhotelreview.R
 import com.example.myhotelreview.viewmodel.HotelViewModel
 import androidx.navigation.fragment.findNavController
+import com.example.myhotelreview.adapter.HotelAdapter
+import com.example.myhotelreview.utils.hideLoadingOverlay
+import com.example.myhotelreview.utils.showLoadingOverlay
 
 class HotelsFragment : Fragment() {
 
@@ -32,16 +34,13 @@ class HotelsFragment : Fragment() {
         val rvHotels = view.findViewById<RecyclerView>(R.id.rvHotels)
         rvHotels.layoutManager = LinearLayoutManager(context)
 
-
-        val loadingOverlay = view.findViewById<View>(R.id.loading_overlay)
-
-        hotelViewModel.isLoading.observe(viewLifecycleOwner, Observer { isLoading ->
+        hotelViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             if (isLoading) {
-                loadingOverlay.visibility = View.VISIBLE
+                view.findViewById<View>(R.id.loading_overlay)?.showLoadingOverlay()
             } else {
-                loadingOverlay.visibility = View.GONE
+                view.findViewById<View>(R.id.loading_overlay)?.hideLoadingOverlay()
             }
-        })
+        }
 
         // The function below inserts the dummy hotels data, we need to activate it only once in order to not get duplicated data every run, that's why it's a comment.
         // hotelViewModel.insertDummyHotels()

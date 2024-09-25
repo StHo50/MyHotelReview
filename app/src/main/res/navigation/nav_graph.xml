@@ -4,7 +4,7 @@
 
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.example.myhotelreview.view.LoginFragment"
+        android:name="com.example.myhotelreview.view.fragment.LoginFragment"
         android:label="Login">
         <action
             android:id="@+id/action_loginFragment_to_hotelsFragment"
@@ -16,7 +16,7 @@
 
     <fragment
         android:id="@+id/hotelsFragment"
-        android:name="com.example.myhotelreview.view.HotelsFragment"
+        android:name="com.example.myhotelreview.view.fragment.HotelsFragment"
         android:label="Hotels">
         <action
             android:id="@+id/action_hotelsFragment_to_hotelDetailFragment"
@@ -25,7 +25,7 @@
 
     <fragment
         android:id="@+id/hotelDetailFragment"
-        android:name="com.example.myhotelreview.view.HotelDetailFragment"
+        android:name="com.example.myhotelreview.view.fragment.HotelDetailFragment"
         android:label="Hotel Details">
         <argument
             android:name="hotelId"
@@ -34,7 +34,7 @@
 
     <fragment
         android:id="@+id/registerFragment"
-        android:name="com.example.myhotelreview.view.RegisterFragment"
+        android:name="com.example.myhotelreview.view.fragment.RegisterFragment"
         android:label="Register">
         <action
             android:id="@+id/action_registerFragment_to_loginFragment"
@@ -43,12 +43,12 @@
 
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.myhotelreview.view.ProfileFragment"
+        android:name="com.example.myhotelreview.view.fragment.ProfileFragment"
         android:label="Profile" />
 
     <fragment
         android:id="@+id/myCommentsFragment"
-        android:name="com.example.myhotelreview.view.MyCommentsFragment"
+        android:name="com.example.myhotelreview.view.fragment.MyCommentsFragment"
         android:label="My Comments">
         <action
             android:id="@+id/action_myCommentsFragment_to_hotelDetailFragment"

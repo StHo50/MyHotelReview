@@ -1,4 +1,4 @@
-package com.example.myhotelreview.view
+package com.example.myhotelreview.view.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater

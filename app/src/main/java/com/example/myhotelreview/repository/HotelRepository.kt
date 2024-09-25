@@ -1,7 +1,10 @@
-package com.example.myhotelreview.model
+package com.example.myhotelreview.repository
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import com.example.myhotelreview.model.hotel.Hotel
+import com.example.myhotelreview.model.hotel.HotelDao
+import com.example.myhotelreview.model.hotel.HotelDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

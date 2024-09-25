@@ -1,4 +1,4 @@
-package com.example.myhotelreview.view
+package com.example.myhotelreview.view.activity
 
 import android.os.Bundle
 import android.view.View
@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity() {
         navController = navHostFragment.navController
         bottomNavigationView = findViewById(R.id.bottom_navigation)
 
+        //connects the bottom navigation view with the NavController so that clicking on bottom navigation items triggers the appropriate navigation actions.
         bottomNavigationView.setupWithNavController(navController)
 
         //Hiding the bottom menu from the login and register pages

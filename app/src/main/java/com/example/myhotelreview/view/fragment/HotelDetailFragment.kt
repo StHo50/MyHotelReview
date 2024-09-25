@@ -1,4 +1,4 @@
-package com.example.myhotelreview.view
+package com.example.myhotelreview.view.fragment
 
 import android.app.Activity
 import android.app.AlertDialog
@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -21,12 +20,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myhotelreview.R
-import com.example.myhotelreview.model.Comment
-import com.example.myhotelreview.model.UserRepository
+import com.example.myhotelreview.adapter.CommentAdapter
+import com.example.myhotelreview.model.comment.Comment
+import com.example.myhotelreview.repository.UserRepository
 import com.example.myhotelreview.service.ImgurAPIservice
 import com.example.myhotelreview.viewmodel.HotelViewModel
 import com.google.android.material.button.MaterialButton

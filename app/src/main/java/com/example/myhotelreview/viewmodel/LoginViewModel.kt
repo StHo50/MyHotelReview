@@ -6,9 +6,9 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myhotelreview.model.FirebaseRepository
-import com.example.myhotelreview.model.UserRepository
-import com.example.myhotelreview.view.MainActivity
+import com.example.myhotelreview.repository.FirebaseRepository
+import com.example.myhotelreview.repository.UserRepository
+import com.example.myhotelreview.view.activity.MainActivity
 import kotlinx.coroutines.launch
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {

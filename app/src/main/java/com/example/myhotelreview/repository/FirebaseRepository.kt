@@ -1,5 +1,8 @@
-package com.example.myhotelreview.model
+package com.example.myhotelreview.repository
 
+import com.example.myhotelreview.model.comment.Comment
+import com.example.myhotelreview.model.hotel.Hotel
+import com.example.myhotelreview.model.user.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await

@@ -1,4 +1,4 @@
-package com.example.myhotelreview.model
+package com.example.myhotelreview.model.comment
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -5,10 +5,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.myhotelreview.model.Comment
-import com.example.myhotelreview.model.CommentRepository
-import com.example.myhotelreview.model.User
-import com.example.myhotelreview.model.UserRepository
+import com.example.myhotelreview.model.comment.Comment
+import com.example.myhotelreview.repository.CommentRepository
+import com.example.myhotelreview.model.user.User
+import com.example.myhotelreview.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 

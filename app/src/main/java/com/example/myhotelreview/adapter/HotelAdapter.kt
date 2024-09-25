@@ -1,11 +1,11 @@
-package com.example.myhotelreview.view
+package com.example.myhotelreview.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myhotelreview.R
 import com.example.myhotelreview.databinding.ItemHotelBinding
-import com.example.myhotelreview.model.Hotel
+import com.example.myhotelreview.model.hotel.Hotel
 import com.squareup.picasso.Picasso
 
 class HotelAdapter(

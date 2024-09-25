@@ -1,25 +1,25 @@
-package com.example.myhotelreview.model
+package com.example.myhotelreview.model.user
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Hotel::class], version = 1)
-abstract class HotelDatabase : RoomDatabase() {
+@Database(entities = [User::class], version = 1)
+abstract class UserDatabase : RoomDatabase() {
 
-    abstract fun hotelDao(): HotelDao
+    abstract fun userDao(): UserDao
 
     companion object {
         @Volatile
-        private var INSTANCE: HotelDatabase? = null
+        private var INSTANCE: UserDatabase? = null
 
-        fun getDatabase(context: Context): HotelDatabase {
+        fun getDatabase(context: Context): UserDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
-                    HotelDatabase::class.java,
-                    "hotel_database"
+                    UserDatabase::class.java,
+                    "user_database"
                 ).build()
                 INSTANCE = instance
                 instance

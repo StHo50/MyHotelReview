@@ -1,4 +1,4 @@
-package com.example.myhotelreview.view
+package com.example.myhotelreview.view.fragment
 
 import android.app.Activity
 import android.content.ContentResolver
@@ -16,7 +16,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.myhotelreview.R
-import com.example.myhotelreview.model.User
+import com.example.myhotelreview.model.user.User
 import com.example.myhotelreview.service.ImgurAPIservice
 import com.example.myhotelreview.viewmodel.ProfileViewModel
 import com.squareup.picasso.Picasso
