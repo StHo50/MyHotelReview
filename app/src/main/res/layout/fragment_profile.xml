@@ -18,16 +18,32 @@
 
     <include layout="@layout/layout_loading_overlay" />
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/profile_imageview"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:src="@drawable/default_profile_image"
-        android:contentDescription="Profile Image"
-        android:layout_gravity="center"
-        android:clickable="true"
-        android:focusable="true"
-        app:shapeAppearanceOverlay="@style/CustomShapeAppearance.Circle"/>
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/profile_imageview"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/default_profile_image"
+            android:contentDescription="Profile Image"
+            android:clickable="true"
+            android:focusable="true"
+            app:shapeAppearanceOverlay="@style/CustomShapeAppearance.Circle"/>
+
+        <ImageView
+            android:id="@+id/lock_icon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="0dp"
+            android:layout_marginBottom="0dp"
+            android:src="@drawable/lock_24px"
+            android:contentDescription="Locked Profile Image"
+            android:visibility="visible" />
+    </FrameLayout>
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/user_name_textview"

@@ -49,6 +49,16 @@
     <fragment
         android:id="@+id/myCommentsFragment"
         android:name="com.example.myhotelreview.view.MyCommentsFragment"
-        android:label="My Comments" />
+        android:label="My Comments">
+        <action
+            android:id="@+id/action_myCommentsFragment_to_hotelDetailFragment"
+            app:destination="@id/hotelDetailFragment"
+            app:popUpTo="@id/hotelDetailFragment"
+            app:popUpToInclusive="false">
+            <argument
+                android:name="hotelId"
+                app:argType="integer" />
+        </action>
+    </fragment>
 
 </navigation>

@@ -27,7 +27,8 @@ class CommentAdapter(
     private val userRepository: UserRepository,
     private val coroutineScope: CoroutineScope,
     private val onEditClick: (Comment) -> Unit,
-    private val onDeleteClick: (Comment) -> Unit
+    private val onDeleteClick: (Comment) -> Unit,
+    private val onCommentClick: (Comment) -> Unit
 ) : RecyclerView.Adapter<CommentAdapter.CommentViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
@@ -56,6 +57,9 @@ class CommentAdapter(
             val btnEditComment = itemView.findViewById<ImageButton>(R.id.btnEditComment)
             val btnDeleteComment = itemView.findViewById<ImageButton>(R.id.btnDeleteComment)
 
+            itemView.setOnClickListener {
+                onCommentClick(comment)  // Trigger the comment click
+            }
             // Set comment text without the user name
             tvComment.text = comment.text
 

@@ -89,7 +89,8 @@ class HotelDetailFragment : Fragment() {
             userRepository,
             viewLifecycleOwner.lifecycleScope,
             { comment -> editComment(comment) },
-            { comment -> deleteComment(comment) }
+            { comment -> deleteComment(comment) },
+            {}
         )
 
         rvComments.layoutManager = LinearLayoutManager(context)

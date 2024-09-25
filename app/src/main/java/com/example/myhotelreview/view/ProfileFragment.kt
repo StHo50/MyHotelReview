@@ -27,6 +27,7 @@ import java.io.InputStream
 class ProfileFragment : Fragment() {
 
     private lateinit var profileImageView: ImageView
+    private lateinit var lockIcon: ImageView
     private lateinit var userNameTextView: TextView
     private lateinit var editNameEditText: EditText
     private lateinit var editButton: Button
@@ -54,6 +55,7 @@ class ProfileFragment : Fragment() {
         loadingOverlay = view.findViewById(R.id.loading_overlay)
 
         profileImageView = view.findViewById(R.id.profile_imageview)
+        lockIcon = view.findViewById(R.id.lock_icon)
         userNameTextView = view.findViewById(R.id.user_name_textview)
         editNameEditText = view.findViewById(R.id.edit_name_edittext)
         editButton = view.findViewById(R.id.edit_button)
@@ -108,7 +110,7 @@ class ProfileFragment : Fragment() {
         editNameEditText.isEnabled = true
         editButton.visibility = View.GONE
         saveButton.visibility = View.VISIBLE
-
+        lockIcon.visibility = View.GONE
         addImageClickListener()
     }
 
@@ -176,6 +178,7 @@ class ProfileFragment : Fragment() {
         editNameEditText.isEnabled = false
         editButton.visibility = View.VISIBLE
         saveButton.visibility = View.GONE
+        lockIcon.visibility = View.VISIBLE
         removeImageClickListener()
 
         isProfileUpdating = false

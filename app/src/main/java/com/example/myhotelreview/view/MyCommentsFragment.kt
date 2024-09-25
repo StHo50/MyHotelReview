@@ -71,11 +71,12 @@ class MyCommentsFragment : Fragment() {
             currentUserId = currentUserId ?: "",
             userRepository = userRepository,  // Pass userRepository
             coroutineScope = viewLifecycleOwner.lifecycleScope,  // Pass lifecycleScope
-            onEditClick = { comment ->
-                showEditCommentDialog(comment)
-            },
-            onDeleteClick = { comment ->
-                viewModel.deleteComment(comment)
+            onEditClick = { comment -> showEditCommentDialog(comment) },
+            onDeleteClick = { comment -> viewModel.deleteComment(comment) },
+            onCommentClick = { comment ->
+                // Navigate to HotelDetailFragment with the hotelId
+                val action = MyCommentsFragmentDirections.actionMyCommentsFragmentToHotelDetailFragment(comment.hotelId)
+                findNavController().navigate(action)
             }
         )
 
