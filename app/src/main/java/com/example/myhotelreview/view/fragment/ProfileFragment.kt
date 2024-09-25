@@ -18,6 +18,8 @@ import androidx.fragment.app.viewModels
 import com.example.myhotelreview.R
 import com.example.myhotelreview.model.user.User
 import com.example.myhotelreview.service.ImgurAPIservice
+import com.example.myhotelreview.utils.hideLoadingOverlay
+import com.example.myhotelreview.utils.showLoadingOverlay
 import com.example.myhotelreview.viewmodel.ProfileViewModel
 import com.squareup.picasso.Picasso
 import java.io.File
@@ -32,7 +34,6 @@ class ProfileFragment : Fragment() {
     private lateinit var editNameEditText: EditText
     private lateinit var editButton: Button
     private lateinit var saveButton: Button
-    private lateinit var loadingOverlay: View
     private val viewModel: ProfileViewModel by viewModels()
     private var profileImageUri: Uri? = null
     private var currentUser: User? = null
@@ -52,7 +53,13 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        loadingOverlay = view.findViewById(R.id.loading_overlay)
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            if (isLoading) {
+                view.findViewById<View>(R.id.loading_overlay)?.showLoadingOverlay()
+            } else {
+                view.findViewById<View>(R.id.loading_overlay)?.hideLoadingOverlay()
+            }
+        }
 
         profileImageView = view.findViewById(R.id.profile_imageview)
         lockIcon = view.findViewById(R.id.lock_icon)
@@ -66,14 +73,6 @@ class ProfileFragment : Fragment() {
 
         setupUserProfile()
 
-        viewModel.isLoading.observe(viewLifecycleOwner, { isLoading ->
-            if (isLoading) {
-                loadingOverlay.visibility = View.VISIBLE
-            } else {
-                loadingOverlay.visibility = View.GONE
-            }
-        })
-
         editButton.setOnClickListener {
             enableEditMode()
         }
@@ -84,7 +83,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupUserProfile() {
-        viewModel.getUserProfile().observe(viewLifecycleOwner, { user ->
+        viewModel.getUserProfile().observe(viewLifecycleOwner) { user ->
             user?.let {
                 currentUser = it
                 userNameTextView.text = it.name
@@ -103,7 +102,7 @@ class ProfileFragment : Fragment() {
                     Picasso.get().load(R.drawable.default_profile_image).into(profileImageView)
                 }
             }
-        })
+        }
     }
 
     private fun enableEditMode() {

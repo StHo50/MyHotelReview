@@ -130,7 +130,6 @@
         android:text="Register"
         android:textStyle="bold"
         android:textColor="@android:color/white"
-        android:backgroundTint="#0d98ba"
         app:cornerRadius="25dp"
         android:layout_marginTop="16dp" />
 
@@ -139,7 +138,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Already have an account? Login here"
-        android:textColor="#0d98ba"
+        android:textColor="#800080"
         android:textStyle="bold"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp" />

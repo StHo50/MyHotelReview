@@ -43,8 +43,9 @@ class HotelDetailFragment : Fragment() {
     private var commentImageUri: Uri? = null
     private val imgurService = ImgurAPIservice()
     private var isCommentSubmitting = false
-    private var editingComment: Comment? = null // To track the comment being edited
+    private var editingComment: Comment? = null
     private lateinit var userRepository: UserRepository
+
     companion object {
         private const val PICK_IMAGE_REQUEST = 1
     }
@@ -178,7 +179,7 @@ class HotelDetailFragment : Fragment() {
     }
 
     private fun submitComment(hotelId: Int, userId: String, userName: String, text: String, imageUrl: String?) {
-        println("Submitting comment for hotelId: $hotelId")
+
         val comment = Comment(
             hotelId = hotelId,
             userId = userId,

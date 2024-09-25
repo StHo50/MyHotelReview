@@ -18,7 +18,6 @@ class HotelRepository(context: Context) {
         val database = HotelDatabase.getDatabase(context)
         hotelDao = database.hotelDao()
         commentRepository = CommentRepository(context)
-
     }
 
     suspend fun syncHotelsWithFirestore(): Boolean {

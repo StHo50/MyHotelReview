@@ -42,7 +42,6 @@ class MyCommentsViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-
     fun getCurrentUserId(): String? {
         val currentUser = FirebaseAuth.getInstance().currentUser
         return currentUser?.uid

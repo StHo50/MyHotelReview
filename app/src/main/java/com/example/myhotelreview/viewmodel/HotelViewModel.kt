@@ -161,12 +161,11 @@ class HotelViewModel(application: Application) : AndroidViewModel(application) {
                 if (user != null) {
                     onComplete(user.name)
                 } else {
-                    onComplete("Anonymous")
+                    onComplete("Name")
                 }
             }
         } else {
-            onComplete("Anonymous")
+            onComplete("Name")
         }
     }
-
 }

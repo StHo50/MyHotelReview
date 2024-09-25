@@ -58,18 +58,26 @@ class MyCommentsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            if (isLoading) {
+                view.findViewById<View>(R.id.loading_overlay)?.showLoadingOverlay()
+            } else {
+                view.findViewById<View>(R.id.loading_overlay)?.hideLoadingOverlay()
+            }
+        }
+
         val rvMyComments = view.findViewById<RecyclerView>(R.id.rvMyComments)
         rvMyComments.layoutManager = LinearLayoutManager(context)
 
         currentUserId = viewModel.getCurrentUserId()
         userRepository = UserRepository(requireContext())
 
-        // Update the commentAdapter initialization to pass UserRepository and lifecycleScope
+
         commentAdapter = CommentAdapter(
             emptyList(),
             currentUserId = currentUserId ?: "",
-            userRepository = userRepository,  // Pass userRepository
-            coroutineScope = viewLifecycleOwner.lifecycleScope,  // Pass lifecycleScope
+            userRepository = userRepository,
+            coroutineScope = viewLifecycleOwner.lifecycleScope,
             onEditClick = { comment -> showEditCommentDialog(comment) },
             onDeleteClick = { comment -> viewModel.deleteComment(comment) },
             onCommentClick = { comment ->
@@ -81,17 +89,10 @@ class MyCommentsFragment : Fragment() {
 
         rvMyComments.adapter = commentAdapter
 
-        viewModel.getCommentsForUser().observe(viewLifecycleOwner, { comments ->
+        viewModel.getCommentsForUser().observe(viewLifecycleOwner) { comments ->
             commentAdapter.updateComments(comments)
-        })
-
-        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            if (isLoading) {
-                view.findViewById<View>(R.id.loading_overlay)?.showLoadingOverlay()
-            } else {
-                view.findViewById<View>(R.id.loading_overlay)?.hideLoadingOverlay()
-            }
         }
+
     }
 
     private fun showEditCommentDialog(comment: Comment) {
